@@ -104,24 +104,30 @@ def manage_create_view(request):
     if request.method == 'POST':
         form = ProductPostForm(request.POST, request.FILES)
         if form.is_valid():
+            image = form.cleaned_data.get('image') or None
+
             product = Product.objects.create(
                 name=form.cleaned_data['title'],
                 slug=_unique_slug(form.cleaned_data['title'], Product),
                 category=form.cleaned_data['category'],
                 price=form.cleaned_data['price'],
                 description=form.cleaned_data['content'],
-                image=form.cleaned_data.get('image'),
+                image=image,
                 stock=form.cleaned_data['stock'],
                 is_active=True,
                 is_featured=form.cleaned_data['is_featured'],
             )
+
+            if image:
+                image.seek(0)
+
             Post.objects.create(
                 title=form.cleaned_data['title'],
                 slug=_unique_slug(form.cleaned_data['title'], Post),
                 content=form.cleaned_data['content'],
                 author=request.user,
                 related_product=product,
-                image=form.cleaned_data.get('image'),
+                image=image,
             )
             messages.success(request, f'"{product.name}" has been published.')
             return redirect('manage_dashboard')
@@ -141,6 +147,8 @@ def manage_edit_view(request, pk):
     if request.method == 'POST':
         form = ProductPostForm(request.POST, request.FILES)
         if form.is_valid():
+            image = form.cleaned_data.get('image') or None
+
             product.name = form.cleaned_data['title']
             product.slug = _unique_slug(form.cleaned_data['title'], Product, instance=product)
             product.category = form.cleaned_data['category']
@@ -148,16 +156,17 @@ def manage_edit_view(request, pk):
             product.description = form.cleaned_data['content']
             product.stock = form.cleaned_data['stock']
             product.is_featured = form.cleaned_data['is_featured']
-            if form.cleaned_data.get('image'):
-                product.image = form.cleaned_data['image']
+            if image:
+                product.image = image
             product.save()
 
             if post:
                 post.title = form.cleaned_data['title']
                 post.slug = _unique_slug(form.cleaned_data['title'], Post, instance=post)
                 post.content = form.cleaned_data['content']
-                if form.cleaned_data.get('image'):
-                    post.image = form.cleaned_data['image']
+                if image:
+                    image.seek(0)
+                    post.image = image
                 post.save()
 
             messages.success(request, f'"{product.name}" has been updated.')
