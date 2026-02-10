@@ -94,6 +94,34 @@
                               hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
             </div>
 
+            <!-- Gallery Images -->
+            <div>
+                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">
+                    GALLERY IMAGES <span class="text-charcoal/30 font-body">(multiple select possible)</span>
+                </label>
+                {% if editing and product.images.exists %}
+                <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-3">
+                    {% for img in product.images.all %}
+                    <div class="relative group aspect-square rounded overflow-hidden border border-charcoal/10">
+                        <img src="{{ img.image.url }}" alt="" class="w-full h-full object-cover">
+                        <a href="{% url 'manage_image_delete' img.pk %}"
+                           class="absolute inset-0 bg-velvet/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                           onclick="return confirm('Delete this image?')">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <input type="file" name="gallery" multiple accept="image/*"
+                       class="w-full text-sm text-charcoal/50
+                              file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                              file:text-xs file:bg-leather file:text-parchment
+                              hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
+            </div>
+
             <!-- Content -->
             <div>
                 <label for="id_content" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CONTENT</label>

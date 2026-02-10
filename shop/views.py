@@ -3,7 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils.text import slugify
 
-from .models import Product, Category
+from .models import Product, Category, ProductImage
 from .forms import ProductPostForm
 from blog.models import Post
 
@@ -129,6 +129,10 @@ def manage_create_view(request):
                 related_product=product,
                 image=image,
             )
+
+            for f in request.FILES.getlist('gallery'):
+                ProductImage.objects.create(product=product, image=f)
+
             messages.success(request, f'"{product.name}" has been published.')
             return redirect('manage_dashboard')
     else:
@@ -169,8 +173,11 @@ def manage_edit_view(request, pk):
                     post.image = image
                 post.save()
 
+            for f in request.FILES.getlist('gallery'):
+                ProductImage.objects.create(product=product, image=f)
+
             messages.success(request, f'"{product.name}" has been updated.')
-            return redirect('manage_dashboard')
+            return redirect('manage_edit', pk=product.pk)
     else:
         form = ProductPostForm(initial={
             'title': product.name,
@@ -185,6 +192,16 @@ def manage_edit_view(request, pk):
         'editing': True,
         'product': product,
     })
+
+
+@staff_member_required
+def manage_image_delete_view(request, pk):
+    img = get_object_or_404(ProductImage, pk=pk)
+    product_pk = img.product.pk
+    img.image.delete()
+    img.delete()
+    messages.success(request, 'Image deleted.')
+    return redirect('manage_edit', pk=product_pk)
 
 
 @staff_member_required

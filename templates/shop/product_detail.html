@@ -77,6 +77,50 @@
         </div>
     </div>
 
+    <!-- Gallery -->
+    {% if product.images.exists %}
+    <div class="mt-16">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Details &amp; Craftsmanship</p>
+            <h2 class="font-heading text-2xl text-charcoal tracking-wide">GALLERY</h2>
+            <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {% for img in product.images.all %}
+            <div class="rounded-lg overflow-hidden border border-charcoal/10 shadow-md cursor-pointer gallery-item"
+                 onclick="openLightbox('{{ img.image.url }}')">
+                <img src="{{ img.image.url }}" alt="{{ product.name }}"
+                     class="w-full aspect-square object-cover hover:scale-105 transition-transform duration-500">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="fixed inset-0 bg-charcoal/90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
+        <button class="absolute top-6 right-6 text-parchment/80 hover:text-gold transition" onclick="closeLightbox()">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+    <script>
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.remove('hidden');
+        document.getElementById('lightbox').classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.getElementById('lightbox').classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    </script>
+    {% endif %}
+
     <!-- Blog Story -->
     {% if post %}
     <div class="mt-16 max-w-4xl mx-auto">
