@@ -3,7 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils.text import slugify
 
-from .models import Product, Category, ProductImage
+from .models import Product, Category, ProductImage, ContentImage
 from .forms import ProductPostForm
 from blog.models import Post
 
@@ -37,12 +37,14 @@ def product_list_view(request):
 def product_detail_view(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     post = Post.objects.filter(related_product=product).first()
+    content_images = product.content_images.all()
     related_products = Product.objects.filter(
         category=product.category, is_active=True
     ).exclude(id=product.id)[:4]
     return render(request, 'shop/product_detail.html', {
         'product': product,
         'post': post,
+        'content_images': content_images,
         'related_products': related_products,
     })
 
@@ -133,8 +135,15 @@ def manage_create_view(request):
             for f in request.FILES.getlist('gallery'):
                 ProductImage.objects.create(product=product, image=f)
 
+            existing_count = 0
+            for f in request.FILES.getlist('content_images'):
+                existing_count += 1
+                ContentImage.objects.create(
+                    product=product, image=f, number=existing_count
+                )
+
             messages.success(request, f'"{product.name}" has been published.')
-            return redirect('manage_dashboard')
+            return redirect('manage_edit', pk=product.pk)
     else:
         form = ProductPostForm()
     return render(request, 'shop/product_form.html', {
@@ -176,6 +185,13 @@ def manage_edit_view(request, pk):
             for f in request.FILES.getlist('gallery'):
                 ProductImage.objects.create(product=product, image=f)
 
+            existing_count = product.content_images.count()
+            for f in request.FILES.getlist('content_images'):
+                existing_count += 1
+                ContentImage.objects.create(
+                    product=product, image=f, number=existing_count
+                )
+
             messages.success(request, f'"{product.name}" has been updated.')
             return redirect('manage_edit', pk=product.pk)
     else:
@@ -201,6 +217,21 @@ def manage_image_delete_view(request, pk):
     img.image.delete()
     img.delete()
     messages.success(request, 'Image deleted.')
+    return redirect('manage_edit', pk=product_pk)
+
+
+@staff_member_required
+def manage_content_image_delete_view(request, pk):
+    img = get_object_or_404(ContentImage, pk=pk)
+    product_pk = img.product.pk
+    img.image.delete()
+    img.delete()
+    # Renumber remaining content images
+    for i, ci in enumerate(ContentImage.objects.filter(product_id=product_pk), 1):
+        if ci.number != i:
+            ci.number = i
+            ci.save()
+    messages.success(request, 'Content image deleted. Numbers updated.')
     return redirect('manage_edit', pk=product_pk)
 
 

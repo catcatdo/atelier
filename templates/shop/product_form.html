@@ -122,13 +122,61 @@
                               hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
             </div>
 
+            <!-- Content Images (inline) -->
+            <div>
+                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">
+                    CONTENT IMAGES <span class="text-charcoal/30 font-body">(insert into text with tags below)</span>
+                </label>
+                {% if editing and product.content_images.exists %}
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+                    {% for img in product.content_images.all %}
+                    <div class="relative group">
+                        <div class="aspect-square rounded overflow-hidden border border-charcoal/10">
+                            <img src="{{ img.image.url }}" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex items-center justify-between mt-1">
+                            <button type="button" onclick="insertTag('[img:{{ img.number }}]')"
+                                    class="text-xs bg-gold/10 text-gold px-2 py-0.5 rounded hover:bg-gold hover:text-charcoal transition font-mono">
+                                [img:{{ img.number }}]
+                            </button>
+                            <a href="{% url 'manage_content_image_delete' img.pk %}"
+                               class="text-xs text-velvet hover:text-red-700 transition"
+                               onclick="return confirm('Delete?')">delete</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <input type="file" name="content_images" multiple accept="image/*"
+                       class="w-full text-sm text-charcoal/50
+                              file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                              file:text-xs file:bg-leather file:text-parchment
+                              hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
+                <p class="text-xs text-charcoal/30 mt-1">
+                    Upload images first, then use <span class="font-mono bg-charcoal/5 px-1 rounded">[img:1]</span>
+                    <span class="font-mono bg-charcoal/5 px-1 rounded">[img:2]</span> ... tags in the content below.
+                </p>
+            </div>
+
             <!-- Content -->
             <div>
                 <label for="id_content" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CONTENT</label>
-                <textarea name="content" id="id_content" rows="10" required
-                          placeholder="Write your description and story..."
-                          class="w-full px-4 py-3 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition resize-y text-charcoal leading-relaxed">{{ form.content.value|default:'' }}</textarea>
+                <textarea name="content" id="id_content" rows="15" required
+                          placeholder="Write your description and story...&#10;&#10;Use [img:1] [img:2] etc. to place images between paragraphs."
+                          class="w-full px-4 py-3 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition resize-y text-charcoal leading-relaxed font-mono text-sm">{{ form.content.value|default:'' }}</textarea>
             </div>
+
+            <script>
+            function insertTag(tag) {
+                var ta = document.getElementById('id_content');
+                var start = ta.selectionStart;
+                var end = ta.selectionEnd;
+                var text = ta.value;
+                ta.value = text.substring(0, start) + tag + text.substring(end);
+                ta.selectionStart = ta.selectionEnd = start + tag.length;
+                ta.focus();
+            }
+            </script>
 
             <!-- Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 pt-2">

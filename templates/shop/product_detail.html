@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load content_tags %}
 
 {% block title %}{{ product.name }} — Atelier des Poupées{% endblock %}
 
@@ -40,7 +41,7 @@
             </p>
 
             <div class="text-charcoal/70 leading-relaxed mb-8 space-y-4">
-                {{ product.description|linebreaks }}
+                {{ product.description|render_content:content_images }}
             </div>
 
             {% if product.stock > 0 %}
@@ -77,7 +78,7 @@
         </div>
     </div>
 
-    <!-- Gallery -->
+    <!-- Gallery Slider -->
     {% if product.images.exists %}
     <div class="mt-16">
         <div class="text-center mb-8">
@@ -85,15 +86,88 @@
             <h2 class="font-heading text-2xl text-charcoal tracking-wide">GALLERY</h2>
             <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {% for img in product.images.all %}
-            <div class="rounded-lg overflow-hidden border border-charcoal/10 shadow-md cursor-pointer gallery-item"
-                 onclick="openLightbox('{{ img.image.url }}')">
-                <img src="{{ img.image.url }}" alt="{{ product.name }}"
-                     class="w-full aspect-square object-cover hover:scale-105 transition-transform duration-500">
+
+        <div class="relative group/slider">
+            <!-- Slider container -->
+            <div class="overflow-hidden rounded-lg border-double border-4 border-charcoal/10 shadow-lg">
+                <div id="slider-track" class="flex transition-transform duration-500 ease-in-out">
+                    {% for img in product.images.all %}
+                    <div class="w-full flex-shrink-0 cursor-pointer" onclick="openLightbox('{{ img.image.url }}')">
+                        <img src="{{ img.image.url }}" alt="{{ product.name }}"
+                             class="w-full aspect-[4/3] object-cover">
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- Arrow buttons -->
+            <button onclick="slideMove(-1)"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 bg-charcoal/60 hover:bg-charcoal/90 text-parchment w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <button onclick="slideMove(1)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 bg-charcoal/60 hover:bg-charcoal/90 text-parchment w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+
+            <!-- Dots -->
+            <div id="slider-dots" class="flex justify-center gap-2 mt-4">
+                {% for img in product.images.all %}
+                <button onclick="slideTo({{ forloop.counter0 }})"
+                        class="slider-dot w-2.5 h-2.5 rounded-full bg-charcoal/20 hover:bg-gold transition"
+                        data-index="{{ forloop.counter0 }}"></button>
+                {% endfor %}
+            </div>
         </div>
+
+        <script>
+        (function() {
+            var current = 0;
+            var track = document.getElementById('slider-track');
+            var total = track.children.length;
+            var dots = document.querySelectorAll('.slider-dot');
+            var autoTimer;
+
+            function update() {
+                track.style.transform = 'translateX(-' + (current * 100) + '%)';
+                dots.forEach(function(d, i) {
+                    d.classList.toggle('bg-gold', i === current);
+                    d.classList.toggle('bg-charcoal/20', i !== current);
+                });
+            }
+
+            window.slideMove = function(dir) {
+                current = (current + dir + total) % total;
+                update();
+                resetAuto();
+            };
+
+            window.slideTo = function(index) {
+                current = index;
+                update();
+                resetAuto();
+            };
+
+            function autoSlide() {
+                autoTimer = setInterval(function() {
+                    current = (current + 1) % total;
+                    update();
+                }, 3000);
+            }
+
+            function resetAuto() {
+                clearInterval(autoTimer);
+                autoSlide();
+            }
+
+            update();
+            autoSlide();
+        })();
+        </script>
     </div>
 
     <!-- Lightbox -->
@@ -130,9 +204,9 @@
             <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
         </div>
         <div class="bg-white rounded-lg border border-charcoal/10 shadow-md p-6 sm:p-8">
-            <p class="text-charcoal/70 leading-relaxed text-lg space-y-4">
-                {{ post.content|linebreaks }}
-            </p>
+            <div class="text-charcoal/70 leading-relaxed text-lg">
+                {{ post.content|render_content:content_images }}
+            </div>
         </div>
     </div>
     {% endif %}

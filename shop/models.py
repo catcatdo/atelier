@@ -44,3 +44,15 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f'{self.product.name} - image {self.pk}'
+
+
+class ContentImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='content_images')
+    image = models.ImageField(upload_to='products/content/')
+    number = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['number']
+
+    def __str__(self):
+        return f'{self.product.name} - content img {self.number}'
