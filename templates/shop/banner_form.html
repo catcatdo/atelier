@@ -3,7 +3,7 @@
 {% block title %}{% if editing %}Edit{% else %}New{% endif %} Banner — Atelier des Poupees{% endblock %}
 
 {% block content %}
-<section class="max-w-2xl mx-auto px-4 py-12">
+<section class="max-w-4xl mx-auto px-4 py-12">
     <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-xl p-6 sm:p-8">
         <div class="text-center mb-8">
             <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">
@@ -30,43 +30,21 @@
         <form method="post" enctype="multipart/form-data" class="space-y-6" id="banner-form">
             {% csrf_token %}
 
-            <!-- Title -->
-            <div>
-                <label for="id_title" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">TITLE <span class="text-charcoal/30 font-body">(optional)</span></label>
-                <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}"
-                       placeholder="Banner title..."
-                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
-            </div>
-
-            <!-- Subtitle -->
-            <div>
-                <label for="id_subtitle" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">SUBTITLE <span class="text-charcoal/30 font-body">(optional)</span></label>
-                <textarea name="subtitle" id="id_subtitle" rows="2"
-                          placeholder="Subtitle text..."
-                          class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal resize-y">{{ form.subtitle.value|default:'' }}</textarea>
-            </div>
-
-            <!-- Image with Cropper -->
+            <!-- Image Upload -->
             <div>
                 <label for="id_image" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">
                     BANNER IMAGE {% if editing %}(leave empty to keep current){% endif %}
                 </label>
-                {% if editing and banner.image %}
-                <div class="mb-3 rounded overflow-hidden border border-charcoal/10" style="max-height: 200px;">
-                    <img src="{{ banner.image.url }}" alt="Current" class="w-full object-cover">
-                </div>
-                {% endif %}
                 <input type="file" name="image" id="id_image" accept="image/*"
                        class="w-full text-sm text-charcoal/50
                               file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
                               file:text-xs file:bg-leather file:text-parchment
                               hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
-                <p class="text-xs text-charcoal/30 mt-1">Recommended: wide landscape image. You can crop after selecting.</p>
             </div>
 
             <!-- Crop Preview -->
             <div id="crop-container" class="hidden">
-                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CROP PREVIEW</label>
+                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CROP IMAGE</label>
                 <div class="border border-charcoal/15 rounded overflow-hidden bg-charcoal/5" style="max-height: 400px;">
                     <img id="crop-preview" src="" alt="Preview" style="max-width: 100%; display: block;">
                 </div>
@@ -79,6 +57,9 @@
                         <option value="0">Free</option>
                     </select>
                     <span id="crop-size" class="text-xs text-charcoal/40"></span>
+                    <button type="button" id="crop-done-btn" class="ml-auto bg-gold text-charcoal px-4 py-1.5 rounded text-xs font-heading tracking-wider hover:bg-gold/80 transition">
+                        CROP DONE &rarr; EDIT TEXT
+                    </button>
                 </div>
             </div>
 
@@ -87,6 +68,69 @@
             <input type="hidden" name="crop_y" id="id_crop_y" value="{{ form.crop_y.value|default:'0' }}">
             <input type="hidden" name="crop_width" id="id_crop_width" value="{{ form.crop_width.value|default:'0' }}">
             <input type="hidden" name="crop_height" id="id_crop_height" value="{{ form.crop_height.value|default:'0' }}">
+            <input type="hidden" name="text_overlays" id="id_text_overlays" value='{% if editing %}{{ banner.text_overlays }}{% else %}[]{% endif %}'>
+
+            <!-- Text Overlay Editor -->
+            <div id="text-editor-section" class="{% if not editing or not banner.image %}hidden{% endif %}">
+                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">TEXT OVERLAY EDITOR</label>
+                <p class="text-xs text-charcoal/40 mb-3">Add text elements and drag them to position on the banner. Click a text to select and edit.</p>
+
+                <!-- Toolbar -->
+                <div class="flex flex-wrap items-center gap-2 mb-3 p-3 bg-parchment rounded border border-charcoal/10">
+                    <button type="button" id="add-text-btn"
+                            class="bg-leather text-parchment px-3 py-1.5 rounded text-xs font-heading tracking-wider hover:bg-leather-light transition">
+                        + ADD TEXT
+                    </button>
+                    <div class="h-6 w-px bg-charcoal/15"></div>
+                    <select id="font-select" class="text-xs px-2 py-1.5 bg-white border border-charcoal/15 rounded focus:border-gold outline-none text-charcoal">
+                        <option value="Cinzel">Cinzel</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Noto Serif KR">Noto Serif KR</option>
+                        <option value="Noto Sans KR">Noto Sans KR</option>
+                    </select>
+                    <input type="number" id="size-input" value="32" min="8" max="120" step="1"
+                           class="w-16 text-xs px-2 py-1.5 bg-white border border-charcoal/15 rounded focus:border-gold outline-none text-charcoal text-center"
+                           title="Font size (px)">
+                    <span class="text-xs text-charcoal/40">px</span>
+                    <input type="color" id="color-input" value="#D4AF37"
+                           class="w-8 h-8 rounded border border-charcoal/15 cursor-pointer">
+                    <label class="flex items-center gap-1 text-xs text-charcoal/60">
+                        <input type="checkbox" id="bold-check" class="w-4 h-4 rounded">
+                        <span class="font-bold">B</span>
+                    </label>
+                    <label class="flex items-center gap-1 text-xs text-charcoal/60">
+                        <input type="checkbox" id="shadow-check" checked class="w-4 h-4 rounded">
+                        Shadow
+                    </label>
+                    <button type="button" id="delete-text-btn"
+                            class="ml-auto text-velvet text-xs hover:text-red-700 transition font-heading tracking-wider">
+                        DELETE SELECTED
+                    </button>
+                </div>
+
+                <!-- Canvas Area -->
+                <div id="editor-canvas" class="relative rounded-lg overflow-hidden border-2 border-charcoal/20 bg-charcoal/10 cursor-crosshair select-none"
+                     style="min-height: 300px;">
+                    {% if editing and banner.image %}
+                    <img id="canvas-bg" src="{{ banner.image.url }}" alt="" class="w-full block pointer-events-none">
+                    {% else %}
+                    <img id="canvas-bg" src="" alt="" class="w-full block pointer-events-none hidden">
+                    {% endif %}
+                    <div id="text-layer" class="absolute inset-0"></div>
+                </div>
+            </div>
+
+            <!-- Title (hidden, auto-generated from first text overlay or manual) -->
+            <div>
+                <label for="id_title" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">BANNER TITLE <span class="text-charcoal/30 font-body">(for admin reference)</span></label>
+                <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}"
+                       placeholder="Banner title..."
+                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+            </div>
+
+            <!-- Subtitle (hidden field, kept for compatibility) -->
+            <input type="hidden" name="subtitle" value="{{ form.subtitle.value|default:'' }}">
 
             <!-- Link URL -->
             <div>
@@ -131,21 +175,25 @@
 <!-- Cropper.js CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
 <script>
 (function() {
+    // ── Cropper ──
     var cropper = null;
     var imageInput = document.getElementById('id_image');
     var cropContainer = document.getElementById('crop-container');
     var cropPreview = document.getElementById('crop-preview');
     var aspectSelect = document.getElementById('aspect-select');
     var cropSizeEl = document.getElementById('crop-size');
+    var cropDoneBtn = document.getElementById('crop-done-btn');
+    var editorSection = document.getElementById('text-editor-section');
+    var canvasBg = document.getElementById('canvas-bg');
 
     function initCropper(src) {
         cropContainer.classList.remove('hidden');
+        editorSection.classList.add('hidden');
         cropPreview.src = src;
-
         if (cropper) cropper.destroy();
-
         var ratio = parseFloat(aspectSelect.value);
         cropper = new Cropper(cropPreview, {
             aspectRatio: ratio || NaN,
@@ -163,28 +211,254 @@
         var file = e.target.files[0];
         if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) {
-            initCropper(ev.target.result);
-        };
+        reader.onload = function(ev) { initCropper(ev.target.result); };
         reader.readAsDataURL(file);
     });
 
     aspectSelect.addEventListener('change', function() {
-        if (cropper) {
-            var ratio = parseFloat(this.value);
-            cropper.setAspectRatio(ratio || NaN);
-        }
+        if (cropper) cropper.setAspectRatio(parseFloat(this.value) || NaN);
     });
 
-    document.getElementById('banner-form').addEventListener('submit', function() {
+    cropDoneBtn.addEventListener('click', function() {
         if (cropper) {
             var data = cropper.getData(true);
             document.getElementById('id_crop_x').value = data.x;
             document.getElementById('id_crop_y').value = data.y;
             document.getElementById('id_crop_width').value = data.width;
             document.getElementById('id_crop_height').value = data.height;
+            // Show cropped preview in editor
+            var croppedUrl = cropper.getCroppedCanvas().toDataURL('image/jpeg');
+            canvasBg.src = croppedUrl;
+            canvasBg.classList.remove('hidden');
+        }
+        cropContainer.classList.add('hidden');
+        editorSection.classList.remove('hidden');
+    });
+
+    // ── Text Overlay Editor ──
+    var textLayer = document.getElementById('text-layer');
+    var canvas = document.getElementById('editor-canvas');
+    var overlays = [];
+    var selectedIdx = -1;
+    var dragState = null;
+
+    // Load existing overlays
+    try {
+        var raw = document.getElementById('id_text_overlays').value;
+        overlays = JSON.parse(raw);
+        if (!Array.isArray(overlays)) overlays = [];
+    } catch(e) { overlays = []; }
+
+    function renderOverlays() {
+        textLayer.innerHTML = '';
+        overlays.forEach(function(ov, i) {
+            var el = document.createElement('div');
+            el.className = 'absolute cursor-move select-none';
+            el.style.left = ov.x + '%';
+            el.style.top = ov.y + '%';
+            el.style.fontFamily = ov.font;
+            el.style.fontSize = ov.size + 'px';
+            el.style.color = ov.color;
+            el.style.fontWeight = ov.bold ? 'bold' : 'normal';
+            el.style.whiteSpace = 'nowrap';
+            el.style.lineHeight = '1.2';
+            el.style.letterSpacing = '0.05em';
+            if (ov.shadow) {
+                el.style.textShadow = '2px 2px 8px rgba(0,0,0,0.7)';
+            }
+            if (i === selectedIdx) {
+                el.style.outline = '2px dashed #D4AF37';
+                el.style.outlineOffset = '4px';
+            }
+            el.textContent = ov.text;
+            el.dataset.idx = i;
+
+            // Click to select
+            el.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                selectOverlay(i);
+                startDrag(e, i);
+            });
+            el.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+                selectOverlay(i);
+                startTouchDrag(e, i);
+            }, { passive: false });
+
+            // Double-click to edit text
+            el.addEventListener('dblclick', function(e) {
+                e.stopPropagation();
+                var newText = prompt('Edit text:', ov.text);
+                if (newText !== null) {
+                    overlays[i].text = newText;
+                    renderOverlays();
+                    saveOverlays();
+                }
+            });
+
+            textLayer.appendChild(el);
+        });
+    }
+
+    function selectOverlay(idx) {
+        selectedIdx = idx;
+        renderOverlays();
+        if (idx >= 0 && idx < overlays.length) {
+            var ov = overlays[idx];
+            document.getElementById('font-select').value = ov.font;
+            document.getElementById('size-input').value = ov.size;
+            document.getElementById('color-input').value = ov.color;
+            document.getElementById('bold-check').checked = ov.bold;
+            document.getElementById('shadow-check').checked = ov.shadow;
+        }
+    }
+
+    function saveOverlays() {
+        document.getElementById('id_text_overlays').value = JSON.stringify(overlays);
+    }
+
+    // Drag functionality
+    function startDrag(e, idx) {
+        var rect = canvas.getBoundingClientRect();
+        dragState = {
+            idx: idx,
+            startMouseX: e.clientX,
+            startMouseY: e.clientY,
+            startX: overlays[idx].x,
+            startY: overlays[idx].y,
+            canvasW: rect.width,
+            canvasH: rect.height
+        };
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', endDrag);
+    }
+
+    function onDrag(e) {
+        if (!dragState) return;
+        var dx = ((e.clientX - dragState.startMouseX) / dragState.canvasW) * 100;
+        var dy = ((e.clientY - dragState.startMouseY) / dragState.canvasH) * 100;
+        overlays[dragState.idx].x = Math.max(0, Math.min(90, dragState.startX + dx));
+        overlays[dragState.idx].y = Math.max(0, Math.min(90, dragState.startY + dy));
+        renderOverlays();
+    }
+
+    function endDrag() {
+        dragState = null;
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', endDrag);
+        saveOverlays();
+    }
+
+    // Touch drag
+    function startTouchDrag(e, idx) {
+        var touch = e.touches[0];
+        var rect = canvas.getBoundingClientRect();
+        dragState = {
+            idx: idx,
+            startMouseX: touch.clientX,
+            startMouseY: touch.clientY,
+            startX: overlays[idx].x,
+            startY: overlays[idx].y,
+            canvasW: rect.width,
+            canvasH: rect.height
+        };
+        document.addEventListener('touchmove', onTouchDrag, { passive: false });
+        document.addEventListener('touchend', endTouchDrag);
+    }
+
+    function onTouchDrag(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        var touch = e.touches[0];
+        var dx = ((touch.clientX - dragState.startMouseX) / dragState.canvasW) * 100;
+        var dy = ((touch.clientY - dragState.startMouseY) / dragState.canvasH) * 100;
+        overlays[dragState.idx].x = Math.max(0, Math.min(90, dragState.startX + dx));
+        overlays[dragState.idx].y = Math.max(0, Math.min(90, dragState.startY + dy));
+        renderOverlays();
+    }
+
+    function endTouchDrag() {
+        dragState = null;
+        document.removeEventListener('touchmove', onTouchDrag);
+        document.removeEventListener('touchend', endTouchDrag);
+        saveOverlays();
+    }
+
+    // Click canvas to deselect
+    canvas.addEventListener('mousedown', function(e) {
+        if (e.target === canvas || e.target === canvasBg || e.target === textLayer) {
+            selectOverlay(-1);
         }
     });
+
+    // Add text button
+    document.getElementById('add-text-btn').addEventListener('click', function() {
+        var newText = prompt('Enter text:');
+        if (!newText) return;
+        overlays.push({
+            text: newText,
+            x: 10,
+            y: 30 + overlays.length * 10,
+            font: document.getElementById('font-select').value,
+            size: parseInt(document.getElementById('size-input').value) || 32,
+            color: document.getElementById('color-input').value,
+            bold: document.getElementById('bold-check').checked,
+            shadow: document.getElementById('shadow-check').checked
+        });
+        selectOverlay(overlays.length - 1);
+        saveOverlays();
+    });
+
+    // Delete text
+    document.getElementById('delete-text-btn').addEventListener('click', function() {
+        if (selectedIdx < 0) return;
+        overlays.splice(selectedIdx, 1);
+        selectedIdx = -1;
+        renderOverlays();
+        saveOverlays();
+    });
+
+    // Toolbar changes apply to selected
+    document.getElementById('font-select').addEventListener('change', function() {
+        if (selectedIdx < 0) return;
+        overlays[selectedIdx].font = this.value;
+        renderOverlays(); saveOverlays();
+    });
+    document.getElementById('size-input').addEventListener('input', function() {
+        if (selectedIdx < 0) return;
+        overlays[selectedIdx].size = parseInt(this.value) || 32;
+        renderOverlays(); saveOverlays();
+    });
+    document.getElementById('color-input').addEventListener('input', function() {
+        if (selectedIdx < 0) return;
+        overlays[selectedIdx].color = this.value;
+        renderOverlays(); saveOverlays();
+    });
+    document.getElementById('bold-check').addEventListener('change', function() {
+        if (selectedIdx < 0) return;
+        overlays[selectedIdx].bold = this.checked;
+        renderOverlays(); saveOverlays();
+    });
+    document.getElementById('shadow-check').addEventListener('change', function() {
+        if (selectedIdx < 0) return;
+        overlays[selectedIdx].shadow = this.checked;
+        renderOverlays(); saveOverlays();
+    });
+
+    // Submit: save crop data
+    document.getElementById('banner-form').addEventListener('submit', function() {
+        if (cropper && !canvasBg.src) {
+            var data = cropper.getData(true);
+            document.getElementById('id_crop_x').value = data.x;
+            document.getElementById('id_crop_y').value = data.y;
+            document.getElementById('id_crop_width').value = data.width;
+            document.getElementById('id_crop_height').value = data.height;
+        }
+        saveOverlays();
+    });
+
+    // Initial render
+    renderOverlays();
 })();
 </script>
 {% endblock %}

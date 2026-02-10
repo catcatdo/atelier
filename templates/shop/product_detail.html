@@ -14,6 +14,7 @@
         <span class="text-charcoal/70">{{ product.name }}</span>
     </nav>
 
+    <!-- ═══ SECTION 1: Product Image + Name + Price + Cart ═══ -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         <!-- Product Image -->
         <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 overflow-hidden shadow-lg">
@@ -26,7 +27,7 @@
             {% endif %}
         </div>
 
-        <!-- Product Info -->
+        <!-- Product Info (Name, Price, Cart ONLY — no description here) -->
         <div>
             <p class="text-gold tracking-[0.2em] text-xs font-heading mb-2">
                 {{ product.category.name|upper }}
@@ -39,10 +40,6 @@
             <p class="text-3xl text-leather font-semibold mb-6">
                 ${{ product.price }}
             </p>
-
-            <div class="text-charcoal/70 leading-relaxed mb-8 space-y-4">
-                {{ product.description|render_content:content_images }}
-            </div>
 
             {% if product.stock > 0 %}
             <p class="text-sm text-charcoal/50 mb-4">
@@ -78,7 +75,7 @@
         </div>
     </div>
 
-    <!-- Gallery Slider - Overlapping Cards -->
+    <!-- ═══ SECTION 2: Gallery Slider ═══ -->
     {% if product.images.exists %}
     <div class="mt-16">
         <div class="text-center mb-8">
@@ -137,7 +134,6 @@
             function update() {
                 cards.forEach(function(card, i) {
                     var offset = i - current;
-                    // Wrap around for circular effect
                     if (offset > Math.floor(total / 2)) offset -= total;
                     if (offset < -Math.floor(total / 2)) offset += total;
 
@@ -145,25 +141,13 @@
                     var translateX, scale, zIndex, opacity;
 
                     if (absOffset === 0) {
-                        translateX = 0;
-                        scale = 1;
-                        zIndex = 20;
-                        opacity = 1;
+                        translateX = 0; scale = 1; zIndex = 20; opacity = 1;
                     } else if (absOffset === 1) {
-                        translateX = offset * 55;
-                        scale = 0.85;
-                        zIndex = 10;
-                        opacity = 0.7;
+                        translateX = offset * 55; scale = 0.85; zIndex = 10; opacity = 0.7;
                     } else if (absOffset === 2) {
-                        translateX = offset * 45;
-                        scale = 0.7;
-                        zIndex = 5;
-                        opacity = 0.4;
+                        translateX = offset * 45; scale = 0.7; zIndex = 5; opacity = 0.4;
                     } else {
-                        translateX = offset * 40;
-                        scale = 0.6;
-                        zIndex = 1;
-                        opacity = 0;
+                        translateX = offset * 40; scale = 0.6; zIndex = 1; opacity = 0;
                     }
 
                     card.style.transform = 'translateX(' + translateX + '%) scale(' + scale + ')';
@@ -172,56 +156,27 @@
                     card.style.width = '60%';
                     card.style.maxWidth = '500px';
                 });
-
                 dots.forEach(function(d, i) {
                     d.classList.toggle('bg-gold', i === current);
                     d.classList.toggle('bg-charcoal/20', i !== current);
                 });
             }
 
-            window.cardMove = function(dir) {
-                current = (current + dir + total) % total;
-                update();
-                resetAuto();
-            };
-
-            window.cardTo = function(idx) {
-                current = idx;
-                update();
-                resetAuto();
-            };
-
+            window.cardMove = function(dir) { current = (current + dir + total) % total; update(); resetAuto(); };
+            window.cardTo = function(idx) { current = idx; update(); resetAuto(); };
             window.cardClick = function(idx, url) {
-                if (idx === current) {
-                    openLightbox(url);
-                } else {
-                    cardTo(idx);
-                }
+                if (idx === current) openLightbox(url); else cardTo(idx);
             };
 
-            function autoSlide() {
-                autoTimer = setInterval(function() {
-                    current = (current + 1) % total;
-                    update();
-                }, 3000);
-            }
+            function autoSlide() { autoTimer = setInterval(function() { current = (current + 1) % total; update(); }, 3000); }
+            function resetAuto() { clearInterval(autoTimer); autoSlide(); }
 
-            function resetAuto() {
-                clearInterval(autoTimer);
-                autoSlide();
-            }
-
-            // Touch/swipe support
             var startX = 0;
             var slider = document.getElementById('card-slider');
-            slider.addEventListener('touchstart', function(e) {
-                startX = e.touches[0].clientX;
-            }, { passive: true });
+            slider.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
             slider.addEventListener('touchend', function(e) {
                 var diff = startX - e.changedTouches[0].clientX;
-                if (Math.abs(diff) > 50) {
-                    cardMove(diff > 0 ? 1 : -1);
-                }
+                if (Math.abs(diff) > 50) cardMove(diff > 0 ? 1 : -1);
             }, { passive: true });
 
             update();
@@ -253,6 +208,22 @@
     }
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
     </script>
+    {% endif %}
+
+    <!-- ═══ SECTION 3: Description / Body Content (with inline images) ═══ -->
+    {% if product.description %}
+    <div class="mt-16 max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">About This Piece</p>
+            <h2 class="font-heading text-2xl text-charcoal tracking-wide">DESCRIPTION</h2>
+            <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+        <div class="bg-white rounded-lg border border-charcoal/10 shadow-md p-6 sm:p-8">
+            <div class="text-charcoal/70 leading-relaxed text-lg">
+                {{ product.description|render_content:content_images }}
+            </div>
+        </div>
+    </div>
     {% endif %}
 
     <!-- Blog Story -->

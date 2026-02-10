@@ -317,12 +317,15 @@ def manage_banner_create_view(request):
             else:
                 cropped = image
 
+            text_overlays = request.POST.get('text_overlays', '[]')
+
             HeroBanner.objects.create(
                 title=form.cleaned_data.get('title', ''),
                 subtitle=form.cleaned_data.get('subtitle', ''),
                 image=cropped,
                 crop_x=crop_x, crop_y=crop_y,
                 crop_width=crop_w, crop_height=crop_h,
+                text_overlays=text_overlays,
                 is_active=form.cleaned_data['is_active'],
                 display_order=form.cleaned_data['display_order'],
                 link_url=form.cleaned_data.get('link_url', ''),
@@ -346,6 +349,7 @@ def manage_banner_edit_view(request, pk):
             banner.is_active = form.cleaned_data['is_active']
             banner.display_order = form.cleaned_data['display_order']
             banner.link_url = form.cleaned_data.get('link_url', '')
+            banner.text_overlays = request.POST.get('text_overlays', '[]')
 
             image = form.cleaned_data.get('image')
             if image:

@@ -66,6 +66,7 @@ class HeroBanner(models.Model):
     crop_y = models.FloatField(default=0)
     crop_width = models.FloatField(default=0)
     crop_height = models.FloatField(default=0)
+    text_overlays = models.TextField(blank=True, default='[]')
     is_active = models.BooleanField(default=True)
     display_order = models.PositiveIntegerField(default=0)
     link_url = models.URLField(blank=True)

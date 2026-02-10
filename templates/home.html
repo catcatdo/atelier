@@ -10,29 +10,12 @@
         {% for banner in banners %}
         <div class="hero-slide absolute inset-0 transition-opacity duration-700 {% if not forloop.first %}opacity-0{% endif %}"
              data-index="{{ forloop.counter0 }}">
+            {% if banner.link_url %}<a href="{{ banner.link_url }}" class="absolute inset-0 z-10">{% endif %}
             <img src="{{ banner.image.url }}" alt="{{ banner.title }}"
                  class="w-full h-full object-cover absolute inset-0">
-            <div class="absolute inset-0 bg-charcoal/40"></div>
-            <div class="relative z-10 flex items-center justify-center" style="min-height: 60vh;">
-                <div class="text-center px-4 max-w-4xl">
-                    {% if banner.title %}
-                    <h1 class="font-heading text-4xl sm:text-6xl text-gold tracking-[0.15em] mb-6 drop-shadow-lg">
-                        {{ banner.title }}
-                    </h1>
-                    {% endif %}
-                    {% if banner.subtitle %}
-                    <p class="text-lg sm:text-xl text-parchment/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow">
-                        {{ banner.subtitle }}
-                    </p>
-                    {% endif %}
-                    {% if banner.link_url %}
-                    <a href="{{ banner.link_url }}"
-                       class="inline-block border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
-                        EXPLORE
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+            <!-- Text Overlays -->
+            <div class="absolute inset-0 z-10 banner-overlay-container" data-overlays="{{ banner.text_overlays }}"></div>
+            {% if banner.link_url %}</a>{% endif %}
         </div>
         {% endfor %}
     </div>
@@ -86,6 +69,36 @@
     })();
     </script>
     {% endif %}
+
+    <!-- Render text overlays -->
+    <script>
+    (function() {
+        document.querySelectorAll('.banner-overlay-container').forEach(function(container) {
+            try {
+                var overlays = JSON.parse(container.dataset.overlays || '[]');
+                overlays.forEach(function(ov) {
+                    var el = document.createElement('div');
+                    el.style.position = 'absolute';
+                    el.style.left = ov.x + '%';
+                    el.style.top = ov.y + '%';
+                    el.style.fontFamily = ov.font;
+                    el.style.fontSize = 'clamp(' + Math.max(8, ov.size * 0.4) + 'px, ' + (ov.size / 16) + 'vw, ' + ov.size + 'px)';
+                    el.style.color = ov.color;
+                    el.style.fontWeight = ov.bold ? 'bold' : 'normal';
+                    el.style.whiteSpace = 'nowrap';
+                    el.style.letterSpacing = '0.05em';
+                    el.style.lineHeight = '1.2';
+                    el.style.pointerEvents = 'none';
+                    if (ov.shadow) {
+                        el.style.textShadow = '2px 2px 8px rgba(0,0,0,0.7)';
+                    }
+                    el.textContent = ov.text;
+                    container.appendChild(el);
+                });
+            } catch(e) {}
+        });
+    })();
+    </script>
 
     <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent z-20"></div>
 </section>
