@@ -3,7 +3,10 @@ from .models import MenuItem, SiteSetting
 
 def menu_context(request):
     active_items = MenuItem.objects.filter(is_active=True)
-    site_settings = SiteSetting.objects.first()
+    try:
+        site_settings = SiteSetting.objects.first()
+    except Exception:
+        site_settings = None
     return {
         'header_menu': active_items.filter(location='header'),
         'footer_nav_menu': active_items.filter(location='footer_nav'),

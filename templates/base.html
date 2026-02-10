@@ -139,9 +139,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-parchment/10 mt-8 pt-8 text-center text-sm text-parchment/40">
-                <p>&copy; 2024 {{ site_settings.copyright_text|default:"Atelier des Poupées" }}. All rights reserved.</p>
-                <p class="mt-1 font-display italic text-gold/40">"{{ site_settings.site_tagline|default:"Sewn with devotion, worn with grace." }}"</p>
+            <div class="border-t border-parchment/10 mt-8 pt-8 text-sm text-parchment/40 relative">
+                <p class="text-center">&copy; 2024 {{ site_settings.copyright_text|default:"Atelier des Poupées" }}. All rights reserved.</p>
+                <p class="text-center mt-1 font-display italic text-gold/40">"{{ site_settings.site_tagline|default:"Sewn with devotion, worn with grace." }}"</p>
+                {% if not user.is_authenticated %}
+                <a href="/accounts/login/" class="absolute right-0 bottom-0 text-parchment/20 hover:text-parchment/40 transition text-xs">login</a>
+                {% endif %}
             </div>
         </div>
     </footer>
