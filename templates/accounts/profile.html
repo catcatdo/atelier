@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-lg mx-auto px-4 py-16">
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-xl p-8">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Your Account</p>
+            <h1 class="font-heading text-2xl text-charcoal tracking-wide">PROFILE</h1>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+
+        {% if user.avatar %}
+        <div class="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border-double border-4 border-gold/30">
+            <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+        </div>
+        {% else %}
+        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-charcoal/5 flex items-center justify-center border-double border-4 border-charcoal/10">
+            <span class="text-gold/30 font-heading text-2xl">{{ user.username.0|upper }}</span>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-6 p-4 bg-velvet/5 border border-velvet/20 rounded text-sm text-velvet">
+                Please correct the errors below.
+            </div>
+            {% endif %}
+
+            <div class="space-y-5">
+                <div>
+                    <label for="id_username" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">USERNAME</label>
+                    <input type="text" name="username" id="id_username" value="{{ form.username.value }}" required
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+                <div>
+                    <label for="id_email" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">EMAIL</label>
+                    <input type="email" name="email" id="id_email" value="{{ form.email.value }}" required
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+                <div>
+                    <label for="id_bio" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">BIO</label>
+                    <textarea name="bio" id="id_bio" rows="3"
+                              class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition resize-none text-charcoal">{{ form.bio.value|default:'' }}</textarea>
+                </div>
+                <div>
+                    <label for="id_avatar" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">AVATAR</label>
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*"
+                           class="w-full text-sm text-charcoal/50
+                                  file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                                  file:text-xs file:bg-leather file:text-parchment
+                                  hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full mt-8 bg-leather text-parchment py-3 font-heading tracking-[0.15em] text-sm hover:bg-leather-light transition rounded shadow-md">
+                UPDATE PROFILE
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

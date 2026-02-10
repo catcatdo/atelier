@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-md mx-auto px-4 py-16">
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-xl p-8">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Welcome Back</p>
+            <h1 class="font-heading text-2xl text-charcoal tracking-wide">SIGN IN</h1>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-6 p-4 bg-velvet/5 border border-velvet/20 rounded text-velvet text-sm">
+                Invalid credentials. Please try again.
+            </div>
+            {% endif %}
+
+            <div class="space-y-5">
+                <div>
+                    <label for="id_username" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">USERNAME</label>
+                    <input type="text" name="username" id="id_username" required autofocus
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+                <div>
+                    <label for="id_password" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">PASSWORD</label>
+                    <input type="password" name="password" id="id_password" required
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full mt-8 bg-leather text-parchment py-3 font-heading tracking-[0.15em] text-sm hover:bg-leather-light transition rounded shadow-md">
+                ENTER THE ATELIER
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-charcoal/40">
+            New to the Atelier?
+            <a href="{% url 'signup' %}" class="text-gold hover:underline font-semibold">Create an Account</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

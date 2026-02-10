@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">The Collection</p>
+        <h1 class="font-heading text-3xl sm:text-4xl text-charcoal tracking-wide">THE SHOP</h1>
+        <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="flex flex-wrap justify-center gap-3 mb-10">
+        <a href="{% url 'product_list' %}"
+           class="px-5 py-2 text-xs font-heading tracking-[0.15em] border rounded transition-all
+                  {% if not current_category %}border-double border-4 border-gold text-gold{% else %}border-charcoal/20 text-charcoal/50 hover:border-gold hover:text-gold{% endif %}">
+            ALL
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'product_list' %}?category={{ cat.slug }}"
+           class="px-5 py-2 text-xs font-heading tracking-[0.15em] border rounded transition-all
+                  {% if current_category == cat.slug %}border-double border-4 border-gold text-gold{% else %}border-charcoal/20 text-charcoal/50 hover:border-gold hover:text-gold{% endif %}">
+            {{ cat.name|upper }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for product in products %}
+        <a href="{% url 'product_detail' product.slug %}"
+           class="group bg-white rounded-lg border border-charcoal/10 hover:border-gold shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="aspect-square overflow-hidden">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full bg-charcoal/5 flex items-center justify-center">
+                    <span class="text-gold/20 font-heading text-5xl">&#10022;</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="p-4 text-center">
+                <p class="text-xs text-gold tracking-[0.2em] mb-1">{{ product.category.name|upper }}</p>
+                <h3 class="font-heading text-charcoal text-sm tracking-wide">{{ product.name }}</h3>
+                <p class="text-leather font-semibold mt-2">${{ product.price }}</p>
+                {% if product.stock == 0 %}
+                <p class="text-velvet text-xs mt-1 font-heading tracking-wider">SOLD OUT</p>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <span class="text-gold/20 font-heading text-6xl">&#10022;</span>
+        <p class="text-charcoal/40 mt-4 font-display italic text-lg">No pieces found in this collection.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

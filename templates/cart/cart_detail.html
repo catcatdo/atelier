@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-12">
+    <div class="text-center mb-12">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Your Selection</p>
+        <h1 class="font-heading text-3xl sm:text-4xl text-charcoal tracking-wide">SHOPPING CART</h1>
+        <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+    </div>
+
+    {% if cart|length > 0 %}
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-lg overflow-hidden">
+        <!-- Cart Items -->
+        <div class="divide-y divide-charcoal/10">
+            {% for item in cart %}
+            <div class="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <!-- Product Image -->
+                <div class="w-20 h-20 rounded overflow-hidden flex-shrink-0 border border-charcoal/10">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-charcoal/5 flex items-center justify-center">
+                        <span class="text-gold/20 font-heading">&#10022;</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Product Info -->
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-heading text-charcoal tracking-wide text-sm">{{ item.product.name }}</h3>
+                    <p class="text-xs text-gold tracking-[0.2em] mt-1">{{ item.product.category.name|upper }}</p>
+                </div>
+
+                <!-- Quantity & Price -->
+                <div class="flex items-center gap-6 sm:gap-8 text-sm">
+                    <span class="text-charcoal/50">Qty: {{ item.quantity }}</span>
+                    <span class="text-leather font-semibold">${{ item.total_price }}</span>
+                    <a href="{% url 'cart_remove' item.product.id %}"
+                       class="text-velvet hover:text-red-700 transition text-xs font-heading tracking-wider">
+                        REMOVE
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Cart Total -->
+        <div class="bg-parchment p-6 border-t-2 border-gold/20">
+            <div class="flex justify-between items-center">
+                <span class="font-heading text-lg text-charcoal tracking-wide">TOTAL</span>
+                <span class="text-2xl text-leather font-semibold">${{ cart.get_total_price }}</span>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                <a href="{% url 'product_list' %}"
+                   class="text-center border border-charcoal/20 text-charcoal px-6 py-3 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
+                    CONTINUE SHOPPING
+                </a>
+                <button class="flex-1 bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow-md">
+                    PROCEED TO CHECKOUT
+                </button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <span class="text-gold/20 font-heading text-6xl">&#10022;</span>
+        <p class="text-charcoal/40 mt-4 font-display italic text-lg">Your cart is empty.</p>
+        <p class="text-charcoal/25 mt-2 text-sm">Explore our collection and find something beautiful.</p>
+        <a href="{% url 'product_list' %}"
+           class="inline-block mt-8 border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
+            BROWSE THE SHOP
+        </a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

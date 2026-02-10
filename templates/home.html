@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Atelier des Poupées — Doll Clothing Atelier{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-charcoal text-parchment py-20 sm:py-32">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <p class="font-display italic text-gold/70 text-sm sm:text-base tracking-[0.3em] mb-4">
+            &mdash; Est. MMXXIV &mdash;
+        </p>
+        <h1 class="font-heading text-4xl sm:text-6xl text-gold tracking-[0.15em] mb-6">
+            ATELIER DES POUP&Eacute;ES
+        </h1>
+        <p class="text-lg sm:text-xl text-parchment/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Exquisite handcrafted garments for discerning dolls.
+            Where medieval elegance meets modern craftsmanship.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'product_list' %}"
+               class="border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
+                EXPLORE THE COLLECTION
+            </a>
+            <a href="{% url 'post_list' %}"
+               class="border border-parchment/20 text-parchment/70 px-8 py-3 font-heading tracking-[0.15em] text-sm hover:border-gold hover:text-gold transition-all">
+                READ THE JOURNAL
+            </a>
+        </div>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
+</section>
+
+<!-- Featured Products -->
+{% if featured_products %}
+<section class="max-w-7xl mx-auto px-4 py-16">
+    <div class="text-center mb-12">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Curated Selection</p>
+        <h2 class="font-heading text-2xl sm:text-3xl text-charcoal tracking-wide">FEATURED PIECES</h2>
+        <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for product in featured_products %}
+        <a href="{% url 'product_detail' product.slug %}"
+           class="group bg-white rounded-lg border-double border-4 border-transparent hover:border-gold shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="aspect-square overflow-hidden">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full bg-charcoal/5 flex items-center justify-center">
+                    <span class="text-gold/20 font-heading text-5xl">&#10022;</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="p-4 text-center">
+                <p class="text-xs text-gold tracking-[0.2em] mb-1">{{ product.category.name|upper }}</p>
+                <h3 class="font-heading text-charcoal text-sm tracking-wide">{{ product.name }}</h3>
+                <p class="text-leather font-semibold mt-2">${{ product.price }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Products -->
+{% if latest_products %}
+<section class="bg-white/40 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">New Arrivals</p>
+            <h2 class="font-heading text-2xl sm:text-3xl text-charcoal tracking-wide">LATEST CREATIONS</h2>
+            <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in latest_products %}
+            <a href="{% url 'product_detail' product.slug %}"
+               class="group bg-parchment rounded-lg border border-charcoal/10 hover:border-gold shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+                <div class="aspect-square overflow-hidden">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-full h-full bg-charcoal/5 flex items-center justify-center">
+                        <span class="text-gold/20 font-heading text-4xl">&#10022;</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-4 text-center">
+                    <p class="text-xs text-gold tracking-[0.2em] mb-1">{{ product.category.name|upper }}</p>
+                    <h3 class="font-heading text-charcoal text-sm tracking-wide">{{ product.name }}</h3>
+                    <p class="text-leather font-semibold mt-2">${{ product.price }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-10">
+            <a href="{% url 'product_list' %}"
+               class="inline-block border-double border-4 border-charcoal/60 text-charcoal px-8 py-3 font-heading tracking-[0.15em] text-sm hover:border-gold hover:text-gold transition-all">
+                VIEW ALL PIECES
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Journal Posts -->
+{% if latest_posts %}
+<section class="max-w-7xl mx-auto px-4 py-16">
+    <div class="text-center mb-12">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">From the Workshop</p>
+        <h2 class="font-heading text-2xl sm:text-3xl text-charcoal tracking-wide">THE JOURNAL</h2>
+        <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for post in latest_posts %}
+        <a href="{% url 'post_detail' post.slug %}"
+           class="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-charcoal/5">
+            {% if post.image %}
+            <div class="aspect-video overflow-hidden">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            {% else %}
+            <div class="aspect-video bg-charcoal/5 flex items-center justify-center">
+                <span class="text-gold/15 font-heading text-5xl">&#10022;</span>
+            </div>
+            {% endif %}
+            <div class="p-6">
+                <p class="text-xs text-gold tracking-[0.2em] mb-2">{{ post.created_at|date:"d M Y" }}</p>
+                <h3 class="font-heading text-lg text-charcoal tracking-wide group-hover:text-gold transition">
+                    {{ post.title }}
+                </h3>
+                <p class="text-charcoal/50 text-sm mt-3 line-clamp-3">
+                    {{ post.content|truncatewords:30 }}
+                </p>
+                <span class="inline-block mt-4 text-gold text-sm font-semibold tracking-wider group-hover:translate-x-1 transition-transform">
+                    READ MORE &rarr;
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="bg-charcoal text-parchment py-16">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+        <h2 class="font-heading text-2xl sm:text-3xl text-gold tracking-wide mb-4">
+            BESPOKE COMMISSIONS
+        </h2>
+        <p class="text-parchment/60 leading-relaxed mb-8">
+            Desire something truly unique? Our atelier accepts commissions for
+            custom doll garments, tailored to your exact specifications.
+        </p>
+        <a href="{% url 'product_list' %}"
+           class="inline-block border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
+            DISCOVER MORE
+        </a>
+    </div>
+</section>
+{% endblock %}

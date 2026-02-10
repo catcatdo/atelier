@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Atelier des Poupées{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    parchment: '#F9F7F2',
+                    charcoal: '#2D2926',
+                    gold: '#D4AF37',
+                    velvet: '#8B0000',
+                    brass: '#B5A642',
+                    leather: '#8B4513',
+                    'leather-light': '#A0522D',
+                },
+                fontFamily: {
+                    heading: ['Cinzel', 'serif'],
+                    display: ['Playfair Display', 'serif'],
+                    body: ['Inter', 'sans-serif'],
+                },
+            }
+        }
+    }
+    </script>
+
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+</head>
+<body class="bg-parchment text-charcoal font-body min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-charcoal text-parchment shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="font-heading text-lg sm:text-2xl text-gold tracking-[0.2em]">
+                    &#10022; ATELIER DES POUP&Eacute;ES &#10022;
+                </a>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn" class="md:hidden text-parchment focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Home</a>
+                    <a href="{% url 'product_list' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Shop</a>
+                    <a href="{% url 'post_list' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Journal</a>
+                    <a href="{% url 'cart_detail' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider relative">
+                        Cart
+                        {% if cart|length > 0 %}
+                        <span class="absolute -top-2 -right-5 bg-velvet text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {{ cart|length }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
+                    <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="border border-gold text-gold px-5 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all">
+                        Sign In
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mobile Nav -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 space-y-2 border-t border-parchment/10 pt-3">
+                <a href="{% url 'home' %}" class="block text-parchment hover:text-gold transition py-1.5">Home</a>
+                <a href="{% url 'product_list' %}" class="block text-parchment hover:text-gold transition py-1.5">Shop</a>
+                <a href="{% url 'post_list' %}" class="block text-parchment hover:text-gold transition py-1.5">Journal</a>
+                <a href="{% url 'cart_detail' %}" class="block text-parchment hover:text-gold transition py-1.5">Cart ({{ cart|length }})</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
+                <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="block text-gold hover:text-parchment transition py-1.5">Sign In</a>
+                <a href="{% url 'signup' %}" class="block text-gold hover:text-parchment transition py-1.5">Create Account</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4">
+        {% for message in messages %}
+        <div class="p-3 rounded border-double border-4 border-gold bg-white/50 text-charcoal mb-2 text-sm">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-parchment mt-16">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-heading text-gold text-base tracking-wider mb-4">ATELIER DES POUP&Eacute;ES</h3>
+                    <p class="text-sm text-parchment/60 leading-relaxed">
+                        Handcrafted doll garments inspired by centuries of textile artistry.
+                        Each piece tells a story woven with care and devotion.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-heading text-gold text-base tracking-wider mb-4">NAVIGATE</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'home' %}" class="text-parchment/60 hover:text-gold transition">Home</a></li>
+                        <li><a href="{% url 'product_list' %}" class="text-parchment/60 hover:text-gold transition">Shop</a></li>
+                        <li><a href="{% url 'post_list' %}" class="text-parchment/60 hover:text-gold transition">Journal</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-heading text-gold text-base tracking-wider mb-4">ACCOUNT</h3>
+                    <ul class="space-y-2 text-sm">
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}" class="text-parchment/60 hover:text-gold transition">Profile</a></li>
+                        <li><a href="{% url 'cart_detail' %}" class="text-parchment/60 hover:text-gold transition">Shopping Cart</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}" class="text-parchment/60 hover:text-gold transition">Sign In</a></li>
+                        <li><a href="{% url 'signup' %}" class="text-parchment/60 hover:text-gold transition">Create Account</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-parchment/10 mt-8 pt-8 text-center text-sm text-parchment/40">
+                <p>&copy; 2024 Atelier des Poup&eacute;es. All rights reserved.</p>
+                <p class="mt-1 font-display italic text-gold/40">"Sewn with devotion, worn with grace."</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile menu toggle -->
+    <script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+    </script>
+</body>
+</html>
