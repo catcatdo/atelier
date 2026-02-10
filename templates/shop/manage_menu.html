@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Menu Editor — Atelier des Poupees{% endblock %}
+{% block title %}Menu Editor — {{ site_settings.site_name|default:"Atelier des Poupees" }}{% endblock %}
 
 {% block content %}
 <section class="max-w-4xl mx-auto px-4 py-12">
@@ -11,6 +11,117 @@
         </div>
         <a href="{% url 'manage_dashboard' %}"
            class="text-sm text-charcoal/60 hover:text-gold transition font-heading tracking-wider">&larr; BACK TO MANAGE</a>
+    </div>
+
+    <!-- Site Settings -->
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <h2 class="font-heading text-lg text-charcoal tracking-wide mb-4">SITE SETTINGS</h2>
+        <form method="post" action="{% url 'manage_site_settings' %}">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">SITE NAME</label>
+                    <input type="text" name="site_name" value="{{ site_settings.site_name|default:'' }}"
+                           placeholder="Atelier des Poupées"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">TAGLINE</label>
+                    <input type="text" name="site_tagline" value="{{ site_settings.site_tagline|default:'' }}"
+                           placeholder="Sewn with devotion, worn with grace."
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">SITE DESCRIPTION</label>
+                <textarea name="site_description" rows="3"
+                          placeholder="Handcrafted doll garments..."
+                          class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm resize-y">{{ site_settings.site_description|default:'' }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">COPYRIGHT TEXT</label>
+                <input type="text" name="copyright_text" value="{{ site_settings.copyright_text|default:'' }}"
+                       placeholder="Atelier des Poupées"
+                       class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+            </div>
+
+            <!-- Color Theme -->
+            <h3 class="font-heading text-sm text-charcoal tracking-wide mt-6 mb-3">COLOR THEME</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">PARCHMENT</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_parchment" value="{{ site_settings.color_parchment|default:'#FFF3CD' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_parchment|default:'#FFF3CD' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               oninput="this.previousElementSibling.value=this.value; this.previousElementSibling.name='color_parchment'; this.removeAttribute('name')"
+                               readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">CHARCOAL</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_charcoal" value="{{ site_settings.color_charcoal|default:'#2D2926' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_charcoal|default:'#2D2926' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">GOLD</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_gold" value="{{ site_settings.color_gold|default:'#D4AF37' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_gold|default:'#D4AF37' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">VELVET</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_velvet" value="{{ site_settings.color_velvet|default:'#8B0000' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_velvet|default:'#8B0000' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LEATHER</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_leather" value="{{ site_settings.color_leather|default:'#8B4513' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_leather|default:'#8B4513' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LEATHER LIGHT</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" name="color_leather_light" value="{{ site_settings.color_leather_light|default:'#A0522D' }}"
+                               class="w-10 h-10 rounded border border-charcoal/15 cursor-pointer"
+                               oninput="this.nextElementSibling.value=this.value">
+                        <input type="text" value="{{ site_settings.color_leather_light|default:'#A0522D' }}"
+                               class="flex-1 px-3 py-2 bg-parchment border border-charcoal/15 rounded text-charcoal text-xs font-mono"
+                               readonly>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="bg-leather text-parchment px-6 py-2.5 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                SAVE SETTINGS
+            </button>
+        </form>
     </div>
 
     {% for section_key, section_label, items in menu_sections %}

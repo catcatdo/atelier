@@ -51,7 +51,6 @@
             {% endif %}
             <div class="flex-1">
                 <h3 class="font-heading text-lg text-charcoal tracking-wide">{{ post.related_product.name }}</h3>
-                <p class="text-leather font-semibold mt-1">{{ post.related_product.price|krw }}</p>
                 <p class="text-charcoal/50 text-sm mt-2">{{ post.related_product.description|truncatewords:20 }}</p>
                 <a href="{% url 'product_detail' post.related_product.slug %}"
                    class="inline-block mt-3 bg-leather text-parchment px-6 py-2 text-xs font-heading tracking-[0.15em] hover:bg-leather-light transition rounded">
@@ -101,11 +100,6 @@
                         POST COMMENT
                     </button>
                 </form>
-                {% else %}
-                <div class="bg-white p-6 rounded-lg border-double border-4 border-charcoal/10 text-center">
-                    <p class="text-charcoal/50 mb-3">Sign in to join the conversation.</p>
-                    <a href="{% url 'login' %}" class="text-gold font-heading tracking-[0.15em] text-sm hover:underline">SIGN IN &rarr;</a>
-                </div>
                 {% endif %}
             </div>
         </div>

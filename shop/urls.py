@@ -21,5 +21,6 @@ urlpatterns = [
     path('manage/menu/add/', views.manage_menu_add_view, name='manage_menu_add'),
     path('manage/menu/<int:pk>/edit/', views.manage_menu_edit_view, name='manage_menu_edit'),
     path('manage/menu/<int:pk>/delete/', views.manage_menu_delete_view, name='manage_menu_delete'),
+    path('manage/site-settings/', views.manage_site_settings_view, name='manage_site_settings'),
     path('<slug:slug>/', views.product_detail_view, name='product_detail'),
 ]

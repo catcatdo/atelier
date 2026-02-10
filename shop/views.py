@@ -9,7 +9,7 @@ from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
 
-from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup, MenuItem
+from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup, MenuItem, SiteSetting
 from .forms import ProductPostForm, HeroBannerForm, PopupForm
 from blog.models import Post
 
@@ -164,10 +164,10 @@ def manage_create_view(request):
                 name=form.cleaned_data['title'],
                 slug=_unique_slug(form.cleaned_data['title'], Product),
                 category=form.cleaned_data['category'],
-                price=form.cleaned_data['price'],
+                price=0,
                 description=form.cleaned_data['content'],
                 image=image,
-                stock=form.cleaned_data['stock'],
+                stock=0,
                 is_active=True,
                 is_featured=form.cleaned_data['is_featured'],
             )
@@ -217,9 +217,7 @@ def manage_edit_view(request, pk):
             product.name = form.cleaned_data['title']
             product.slug = _unique_slug(form.cleaned_data['title'], Product, instance=product)
             product.category = form.cleaned_data['category']
-            product.price = form.cleaned_data['price']
             product.description = form.cleaned_data['content']
-            product.stock = form.cleaned_data['stock']
             product.is_featured = form.cleaned_data['is_featured']
             if image:
                 product.image = image
@@ -250,8 +248,6 @@ def manage_edit_view(request, pk):
         form = ProductPostForm(initial={
             'title': product.name,
             'category': product.category,
-            'price': product.price,
-            'stock': product.stock,
             'content': product.description,
             'is_featured': product.is_featured,
         })
@@ -482,10 +478,31 @@ def manage_menu_view(request):
         ('footer_account', 'Footer Account', MenuItem.objects.filter(location='footer_account')),
     ]
     locations = MenuItem.LOCATION_CHOICES
+    site_settings = SiteSetting.objects.first()
     return render(request, 'shop/manage_menu.html', {
         'menu_sections': menu_sections,
         'locations': locations,
+        'site_settings': site_settings,
     })
+
+
+@staff_member_required
+def manage_site_settings_view(request):
+    if request.method == 'POST':
+        settings, _ = SiteSetting.objects.get_or_create(pk=1)
+        settings.site_name = request.POST.get('site_name', '').strip() or settings.site_name
+        settings.site_tagline = request.POST.get('site_tagline', '').strip() or settings.site_tagline
+        settings.site_description = request.POST.get('site_description', '').strip() or settings.site_description
+        settings.copyright_text = request.POST.get('copyright_text', '').strip() or settings.copyright_text
+        settings.color_parchment = request.POST.get('color_parchment', '').strip() or settings.color_parchment
+        settings.color_charcoal = request.POST.get('color_charcoal', '').strip() or settings.color_charcoal
+        settings.color_gold = request.POST.get('color_gold', '').strip() or settings.color_gold
+        settings.color_velvet = request.POST.get('color_velvet', '').strip() or settings.color_velvet
+        settings.color_leather = request.POST.get('color_leather', '').strip() or settings.color_leather
+        settings.color_leather_light = request.POST.get('color_leather_light', '').strip() or settings.color_leather_light
+        settings.save()
+        messages.success(request, 'Site settings updated.')
+    return redirect('manage_menu')
 
 
 @staff_member_required

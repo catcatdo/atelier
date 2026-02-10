@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Atelier des Poupées{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name|default:"Atelier des Poupées" }}{% endblock %}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,13 +18,13 @@
         theme: {
             extend: {
                 colors: {
-                    parchment: '#FFF3CD',
-                    charcoal: '#2D2926',
-                    gold: '#D4AF37',
-                    velvet: '#8B0000',
+                    parchment: '{{ site_settings.color_parchment|default:"#FFF3CD" }}',
+                    charcoal: '{{ site_settings.color_charcoal|default:"#2D2926" }}',
+                    gold: '{{ site_settings.color_gold|default:"#D4AF37" }}',
+                    velvet: '{{ site_settings.color_velvet|default:"#8B0000" }}',
                     brass: '#B5A642',
-                    leather: '#8B4513',
-                    'leather-light': '#A0522D',
+                    leather: '{{ site_settings.color_leather|default:"#8B4513" }}',
+                    'leather-light': '{{ site_settings.color_leather_light|default:"#A0522D" }}',
                 },
                 fontFamily: {
                     heading: ['Cinzel', 'Noto Serif KR', 'serif'],
@@ -46,7 +46,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <a href="{% url 'home' %}" class="font-heading text-lg sm:text-2xl text-gold tracking-[0.2em]">
-                    &#10022; ATELIER DES POUP&Eacute;ES &#10022;
+                    &#10022; {{ site_settings.site_name|default:"ATELIER DES POUPÉES"|upper }} &#10022;
                 </a>
 
                 <!-- Mobile menu button -->
@@ -72,10 +72,6 @@
                     {% endif %}
                     <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
                     <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="border border-gold text-gold px-5 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all">
-                        Sign In
-                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -92,9 +88,6 @@
                 {% endif %}
                 <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
                 <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
-                {% else %}
-                <a href="{% url 'login' %}" class="block text-gold hover:text-parchment transition py-1.5">Sign In</a>
-                <a href="{% url 'signup' %}" class="block text-gold hover:text-parchment transition py-1.5">Create Account</a>
                 {% endif %}
             </div>
         </div>
@@ -121,10 +114,9 @@
         <div class="max-w-7xl mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="font-heading text-gold text-base tracking-wider mb-4">ATELIER DES POUP&Eacute;ES</h3>
+                    <h3 class="font-heading text-gold text-base tracking-wider mb-4">{{ site_settings.site_name|default:"ATELIER DES POUPÉES"|upper }}</h3>
                     <p class="text-sm text-parchment/60 leading-relaxed">
-                        Handcrafted doll garments inspired by centuries of textile artistry.
-                        Each piece tells a story woven with care and devotion.
+                        {{ site_settings.site_description|default:"Handcrafted doll garments inspired by centuries of textile artistry. Each piece tells a story woven with care and devotion." }}
                     </p>
                 </div>
                 <div>
@@ -143,16 +135,13 @@
                         {% endfor %}
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}" class="text-parchment/60 hover:text-gold transition">Profile</a></li>
-                        {% else %}
-                        <li><a href="{% url 'login' %}" class="text-parchment/60 hover:text-gold transition">Sign In</a></li>
-                        <li><a href="{% url 'signup' %}" class="text-parchment/60 hover:text-gold transition">Create Account</a></li>
                         {% endif %}
                     </ul>
                 </div>
             </div>
             <div class="border-t border-parchment/10 mt-8 pt-8 text-center text-sm text-parchment/40">
-                <p>&copy; 2024 Atelier des Poup&eacute;es. All rights reserved.</p>
-                <p class="mt-1 font-display italic text-gold/40">"Sewn with devotion, worn with grace."</p>
+                <p>&copy; 2024 {{ site_settings.copyright_text|default:"Atelier des Poupées" }}. All rights reserved.</p>
+                <p class="mt-1 font-display italic text-gold/40">"{{ site_settings.site_tagline|default:"Sewn with devotion, worn with grace." }}"</p>
             </div>
         </div>
     </footer>

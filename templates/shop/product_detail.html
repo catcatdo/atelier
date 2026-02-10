@@ -37,22 +37,6 @@
             </h1>
             <div class="w-16 h-0.5 bg-gold mb-6"></div>
 
-            <p class="text-3xl text-leather font-semibold mb-6">
-                {{ product.price|krw }}
-            </p>
-
-            {% if product.stock > 0 %}
-            <p class="text-sm text-charcoal/50 mb-4">
-                <span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-1.5 align-middle"></span>
-                In Stock ({{ product.stock }} available)
-            </p>
-            {% else %}
-            <p class="text-velvet font-heading tracking-[0.15em] text-sm">
-                <span class="inline-block w-2 h-2 bg-velvet rounded-full mr-1.5 align-middle"></span>
-                CURRENTLY UNAVAILABLE
-            </p>
-            {% endif %}
-
             <div class="mt-8 pt-8 border-t border-charcoal/10">
                 <p class="text-xs text-charcoal/30 tracking-wider">
                     SKU: ATP-{{ product.id|stringformat:"04d" }} &middot; Added {{ product.created_at|date:"M Y" }}
@@ -252,7 +236,6 @@
                 </div>
                 <div class="p-4 text-center">
                     <h3 class="font-heading text-charcoal text-sm tracking-wide">{{ item.name }}</h3>
-                    <p class="text-leather font-semibold mt-1">{{ item.price|krw }}</p>
                 </div>
             </a>
             {% endfor %}

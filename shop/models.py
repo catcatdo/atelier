@@ -123,3 +123,29 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return f'{self.get_location_display()} — {self.label}'
+
+
+class SiteSetting(models.Model):
+    site_name = models.CharField(max_length=200, default="Atelier des Poupées")
+    site_tagline = models.CharField(max_length=300, default="Sewn with devotion, worn with grace.")
+    site_description = models.TextField(
+        default="Handcrafted doll garments inspired by centuries of textile artistry. "
+                "Each piece tells a story woven with care and devotion."
+    )
+    copyright_text = models.CharField(max_length=200, default="Atelier des Poupées")
+    color_parchment = models.CharField(max_length=7, default="#FFF3CD")
+    color_charcoal = models.CharField(max_length=7, default="#2D2926")
+    color_gold = models.CharField(max_length=7, default="#D4AF37")
+    color_velvet = models.CharField(max_length=7, default="#8B0000")
+    color_leather = models.CharField(max_length=7, default="#8B4513")
+    color_leather_light = models.CharField(max_length=7, default="#A0522D")
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Site Setting'
+
+    def __str__(self):
+        return 'Site Settings'
