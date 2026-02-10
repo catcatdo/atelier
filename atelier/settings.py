@@ -27,8 +27,6 @@ INSTALLED_APPS = [
     'accounts',
     'shop',
     'blog',
-    'cart',
-    'orders',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +52,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'cart.context_processors.cart_context',
+                'shop.context_processors.menu_context',
             ],
         },
     },
@@ -106,11 +104,6 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Stripe
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 LOGGING = {
     'version': 1,

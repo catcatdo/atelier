@@ -58,24 +58,15 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'home' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Home</a>
-                    <a href="{% url 'product_list' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Shop</a>
-                    <a href="{% url 'post_list' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Journal</a>
-                    <a href="{% url 'cart_detail' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider relative">
-                        Cart
-                        {% if cart|length > 0 %}
-                        <span class="absolute -top-2 -right-5 bg-velvet text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {{ cart|length }}
-                        </span>
-                        {% endif %}
-                    </a>
+                    {% for item in header_menu %}
+                    <a href="{{ item.url }}" class="text-parchment hover:text-gold transition text-sm tracking-wider"{% if item.open_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.label }}</a>
+                    {% endfor %}
                     {% if user.is_authenticated %}
                     {% if user.is_staff %}
                     <a href="{% url 'manage_dashboard' %}" class="bg-gold/10 text-gold px-4 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all rounded">
                         Manage
                     </a>
                     {% endif %}
-                    <a href="{% url 'order_history' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Orders</a>
                     <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
                     <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
                     {% else %}
@@ -88,15 +79,13 @@
 
             <!-- Mobile Nav -->
             <div id="mobile-menu" class="hidden md:hidden pb-4 space-y-2 border-t border-parchment/10 pt-3">
-                <a href="{% url 'home' %}" class="block text-parchment hover:text-gold transition py-1.5">Home</a>
-                <a href="{% url 'product_list' %}" class="block text-parchment hover:text-gold transition py-1.5">Shop</a>
-                <a href="{% url 'post_list' %}" class="block text-parchment hover:text-gold transition py-1.5">Journal</a>
-                <a href="{% url 'cart_detail' %}" class="block text-parchment hover:text-gold transition py-1.5">Cart ({{ cart|length }})</a>
+                {% for item in header_menu %}
+                <a href="{{ item.url }}" class="block text-parchment hover:text-gold transition py-1.5"{% if item.open_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.label }}</a>
+                {% endfor %}
                 {% if user.is_authenticated %}
                 {% if user.is_staff %}
                 <a href="{% url 'manage_dashboard' %}" class="block text-gold hover:text-parchment transition py-1.5 font-semibold">Manage</a>
                 {% endif %}
-                <a href="{% url 'order_history' %}" class="block text-parchment hover:text-gold transition py-1.5">Orders</a>
                 <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
                 <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
                 {% else %}
@@ -137,18 +126,19 @@
                 <div>
                     <h3 class="font-heading text-gold text-base tracking-wider mb-4">NAVIGATE</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{% url 'home' %}" class="text-parchment/60 hover:text-gold transition">Home</a></li>
-                        <li><a href="{% url 'product_list' %}" class="text-parchment/60 hover:text-gold transition">Shop</a></li>
-                        <li><a href="{% url 'post_list' %}" class="text-parchment/60 hover:text-gold transition">Journal</a></li>
+                        {% for item in footer_nav_menu %}
+                        <li><a href="{{ item.url }}" class="text-parchment/60 hover:text-gold transition"{% if item.open_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.label }}</a></li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div>
                     <h3 class="font-heading text-gold text-base tracking-wider mb-4">ACCOUNT</h3>
                     <ul class="space-y-2 text-sm">
+                        {% for item in footer_account_menu %}
+                        <li><a href="{{ item.url }}" class="text-parchment/60 hover:text-gold transition"{% if item.open_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.label }}</a></li>
+                        {% endfor %}
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}" class="text-parchment/60 hover:text-gold transition">Profile</a></li>
-                        <li><a href="{% url 'order_history' %}" class="text-parchment/60 hover:text-gold transition">Order History</a></li>
-                        <li><a href="{% url 'cart_detail' %}" class="text-parchment/60 hover:text-gold transition">Shopping Cart</a></li>
                         {% else %}
                         <li><a href="{% url 'login' %}" class="text-parchment/60 hover:text-gold transition">Sign In</a></li>
                         <li><a href="{% url 'signup' %}" class="text-parchment/60 hover:text-gold transition">Create Account</a></li>

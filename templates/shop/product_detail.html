@@ -46,20 +46,6 @@
                 <span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-1.5 align-middle"></span>
                 In Stock ({{ product.stock }} available)
             </p>
-            <form method="post" action="{% url 'cart_add' product.id %}">
-                {% csrf_token %}
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center border border-charcoal/20 rounded">
-                        <label for="quantity" class="sr-only">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}"
-                               class="w-20 text-center py-2.5 bg-transparent focus:outline-none text-charcoal">
-                    </div>
-                    <button type="submit"
-                            class="flex-1 bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-sm hover:bg-leather-light transition-colors rounded shadow-md hover:shadow-lg">
-                        ADD TO CART
-                    </button>
-                </div>
-            </form>
             {% else %}
             <p class="text-velvet font-heading tracking-[0.15em] text-sm">
                 <span class="inline-block w-2 h-2 bg-velvet rounded-full mr-1.5 align-middle"></span>
