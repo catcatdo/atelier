@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-md mx-auto px-4 py-16">
+    <div class="bg-white rounded-lg border-double border-4 border-velvet/20 shadow-xl p-8 text-center">
+        <span class="text-velvet text-4xl">&#10022;</span>
+        <h1 class="font-heading text-xl text-charcoal tracking-wide mt-4 mb-2">DELETE PRODUCT</h1>
+        <p class="text-charcoal/60 mb-6">
+            Are you sure you want to delete<br>
+            <strong class="text-charcoal">"{{ product.name }}"</strong>?<br>
+            <span class="text-xs text-velvet">This will also delete the linked journal post.</span>
+        </p>
+        <form method="post" class="flex flex-col gap-3">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full bg-velvet text-parchment py-3 font-heading tracking-[0.15em] text-sm hover:bg-red-800 transition rounded shadow-md">
+                YES, DELETE
+            </button>
+            <a href="{% url 'manage_dashboard' %}"
+               class="w-full border border-charcoal/20 text-charcoal py-3 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded block">
+                CANCEL
+            </a>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -77,6 +77,22 @@
         </div>
     </div>
 
+    <!-- Blog Story -->
+    {% if post %}
+    <div class="mt-16 max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">The Story Behind</p>
+            <h2 class="font-heading text-2xl text-charcoal tracking-wide">FROM THE JOURNAL</h2>
+            <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+        <div class="bg-white rounded-lg border border-charcoal/10 shadow-md p-6 sm:p-8">
+            <p class="text-charcoal/70 leading-relaxed text-lg space-y-4">
+                {{ post.content|linebreaks }}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Related Products -->
     {% if related_products %}
     <div class="mt-20">

@@ -9,7 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,9 +27,9 @@
                     'leather-light': '#A0522D',
                 },
                 fontFamily: {
-                    heading: ['Cinzel', 'serif'],
-                    display: ['Playfair Display', 'serif'],
-                    body: ['Inter', 'sans-serif'],
+                    heading: ['Cinzel', 'Noto Serif KR', 'serif'],
+                    display: ['Playfair Display', 'Noto Serif KR', 'serif'],
+                    body: ['Inter', 'Noto Sans KR', 'sans-serif'],
                 },
             }
         }
@@ -70,6 +70,11 @@
                         {% endif %}
                     </a>
                     {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                    <a href="{% url 'manage_dashboard' %}" class="bg-gold/10 text-gold px-4 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all rounded">
+                        Manage
+                    </a>
+                    {% endif %}
                     <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
                     <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
                     {% else %}
@@ -87,6 +92,9 @@
                 <a href="{% url 'post_list' %}" class="block text-parchment hover:text-gold transition py-1.5">Journal</a>
                 <a href="{% url 'cart_detail' %}" class="block text-parchment hover:text-gold transition py-1.5">Cart ({{ cart|length }})</a>
                 {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                <a href="{% url 'manage_dashboard' %}" class="block text-gold hover:text-parchment transition py-1.5 font-semibold">Manage</a>
+                {% endif %}
                 <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
                 <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
                 {% else %}
