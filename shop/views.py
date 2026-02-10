@@ -52,6 +52,9 @@ def product_list_view(request):
 def product_detail_view(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     post = Post.objects.filter(related_product=product).first()
+    # Don't show journal section if content is identical to product description
+    if post and post.content.strip() == product.description.strip():
+        post = None
     content_images = product.content_images.all()
     related_products = Product.objects.filter(
         category=product.category, is_active=True
