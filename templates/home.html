@@ -1,9 +1,96 @@
 {% extends 'base.html' %}
 
-{% block title %}Atelier des Poupées — Doll Clothing Atelier{% endblock %}
+{% block title %}Atelier des Poupees — Doll Clothing Atelier{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
+{% if banners %}
+<section class="relative bg-charcoal text-parchment overflow-hidden" style="min-height: 60vh;">
+    <div id="hero-slider" class="relative w-full" style="min-height: 60vh;">
+        {% for banner in banners %}
+        <div class="hero-slide absolute inset-0 transition-opacity duration-700 {% if not forloop.first %}opacity-0{% endif %}"
+             data-index="{{ forloop.counter0 }}">
+            <img src="{{ banner.image.url }}" alt="{{ banner.title }}"
+                 class="w-full h-full object-cover absolute inset-0">
+            <div class="absolute inset-0 bg-charcoal/40"></div>
+            <div class="relative z-10 flex items-center justify-center" style="min-height: 60vh;">
+                <div class="text-center px-4 max-w-4xl">
+                    {% if banner.title %}
+                    <h1 class="font-heading text-4xl sm:text-6xl text-gold tracking-[0.15em] mb-6 drop-shadow-lg">
+                        {{ banner.title }}
+                    </h1>
+                    {% endif %}
+                    {% if banner.subtitle %}
+                    <p class="text-lg sm:text-xl text-parchment/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow">
+                        {{ banner.subtitle }}
+                    </p>
+                    {% endif %}
+                    {% if banner.link_url %}
+                    <a href="{{ banner.link_url }}"
+                       class="inline-block border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
+                        EXPLORE
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if banners|length > 1 %}
+    <!-- Hero Nav Dots -->
+    <div class="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+        {% for banner in banners %}
+        <button onclick="heroTo({{ forloop.counter0 }})"
+                class="hero-dot w-3 h-3 rounded-full bg-parchment/30 hover:bg-gold transition"
+                data-index="{{ forloop.counter0 }}"></button>
+        {% endfor %}
+    </div>
+    <script>
+    (function() {
+        var slides = document.querySelectorAll('.hero-slide');
+        var dots = document.querySelectorAll('.hero-dot');
+        var current = 0;
+        var total = slides.length;
+        var timer;
+
+        function showSlide(idx) {
+            slides.forEach(function(s, i) {
+                s.classList.toggle('opacity-0', i !== idx);
+                s.style.zIndex = (i === idx) ? 1 : 0;
+            });
+            dots.forEach(function(d, i) {
+                d.classList.toggle('bg-gold', i === idx);
+                d.classList.toggle('bg-parchment/30', i !== idx);
+            });
+        }
+
+        window.heroTo = function(idx) {
+            current = idx;
+            showSlide(current);
+            resetTimer();
+        };
+
+        function autoNext() {
+            current = (current + 1) % total;
+            showSlide(current);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = setInterval(autoNext, 5000);
+        }
+
+        showSlide(0);
+        resetTimer();
+    })();
+    </script>
+    {% endif %}
+
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent z-20"></div>
+</section>
+{% else %}
+<!-- Fallback: static hero -->
 <section class="relative bg-charcoal text-parchment py-20 sm:py-32">
     <div class="max-w-4xl mx-auto px-4 text-center">
         <p class="font-display italic text-gold/70 text-sm sm:text-base tracking-[0.3em] mb-4">
@@ -29,6 +116,7 @@
     </div>
     <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
 </section>
+{% endif %}
 
 <!-- Featured Products -->
 {% if featured_products %}
@@ -160,4 +248,96 @@
         </a>
     </div>
 </section>
+
+<!-- Popup Modals -->
+{% if popups %}
+{% for popup in popups %}
+<div id="popup-{{ popup.pk }}" class="popup-modal fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-charcoal/70"
+     data-popup-id="{{ popup.pk }}">
+    <div class="relative bg-white rounded-lg shadow-2xl overflow-hidden border-double border-4 border-gold/30
+                {% if popup.popup_type == 'banner' %}max-w-2xl{% else %}max-w-lg{% endif %} w-full">
+        <!-- Close Button -->
+        <button onclick="closePopup({{ popup.pk }})"
+                class="absolute top-3 right-3 z-10 bg-charcoal/50 hover:bg-charcoal/80 text-parchment w-8 h-8 rounded-full flex items-center justify-center transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+
+        {% if popup.popup_type == 'banner' %}
+        <!-- Full image banner popup -->
+        {% if popup.link_url %}<a href="{{ popup.link_url }}">{% endif %}
+            {% if popup.image %}
+            <img src="{{ popup.image.url }}" alt="{{ popup.title }}" class="w-full">
+            {% endif %}
+        {% if popup.link_url %}</a>{% endif %}
+        {% else %}
+        <!-- Announcement popup -->
+        {% if popup.image %}
+        <div class="aspect-video overflow-hidden">
+            <img src="{{ popup.image.url }}" alt="{{ popup.title }}" class="w-full h-full object-cover">
+        </div>
+        {% endif %}
+        <div class="p-6 sm:p-8">
+            <h3 class="font-heading text-xl text-charcoal tracking-wide mb-3">{{ popup.title }}</h3>
+            {% if popup.content %}
+            <div class="text-charcoal/70 leading-relaxed mb-4">{{ popup.content|linebreaks }}</div>
+            {% endif %}
+            {% if popup.link_url %}
+            <a href="{{ popup.link_url }}"
+               class="inline-block border-double border-4 border-gold text-gold px-6 py-2 font-heading tracking-[0.15em] text-xs hover:bg-gold hover:text-charcoal transition-all">
+                LEARN MORE
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Don't show today -->
+        <div class="px-6 pb-4 flex items-center gap-2">
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-charcoal/40">
+                <input type="checkbox" onchange="dismissPopupToday({{ popup.pk }})"
+                       class="w-4 h-4 rounded border-charcoal/20 text-gold focus:ring-gold">
+                Don't show again today
+            </label>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function closePopup(id) {
+    var el = document.getElementById('popup-' + id);
+    el.classList.add('hidden');
+    el.classList.remove('flex');
+    var anyOpen = document.querySelectorAll('.popup-modal.flex');
+    if (anyOpen.length === 0) document.body.style.overflow = '';
+}
+
+function dismissPopupToday(id) {
+    var today = new Date().toISOString().split('T')[0];
+    document.cookie = 'popup_dismissed_' + id + '=' + today + ';path=/;max-age=86400;SameSite=Lax';
+    closePopup(id);
+}
+
+function isPopupDismissed(id) {
+    var today = new Date().toISOString().split('T')[0];
+    var match = document.cookie.match(new RegExp('popup_dismissed_' + id + '=([^;]+)'));
+    return match && match[1] === today;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var popups = document.querySelectorAll('.popup-modal');
+    var shown = false;
+    popups.forEach(function(el) {
+        var id = el.dataset.popupId;
+        if (!isPopupDismissed(id) && !shown) {
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            shown = true;
+        }
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

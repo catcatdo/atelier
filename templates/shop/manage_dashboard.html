@@ -1,18 +1,120 @@
 {% extends 'base.html' %}
 
-{% block title %}Manage — Atelier des Poupées{% endblock %}
+{% block title %}Manage — Atelier des Poupees{% endblock %}
 
 {% block content %}
 <section class="max-w-6xl mx-auto px-4 py-12">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <div>
             <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-1">Administration</p>
-            <h1 class="font-heading text-3xl text-charcoal tracking-wide">MANAGE PRODUCTS</h1>
+            <h1 class="font-heading text-3xl text-charcoal tracking-wide">MANAGE</h1>
         </div>
         <a href="{% url 'manage_create' %}"
            class="bg-leather text-parchment px-6 py-3 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow-md">
             + NEW POST
         </a>
+    </div>
+
+    <!-- Hero Banners -->
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-heading text-lg text-charcoal tracking-wide">HERO BANNERS</h2>
+            <a href="{% url 'manage_banner_create' %}"
+               class="bg-leather text-parchment px-4 py-2 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                + ADD BANNER
+            </a>
+        </div>
+        {% if banners %}
+        <div class="space-y-3">
+            {% for banner in banners %}
+            <div class="flex items-center gap-4 bg-parchment rounded p-3 border border-charcoal/5">
+                <div class="w-24 h-14 rounded overflow-hidden flex-shrink-0 border border-charcoal/10">
+                    <img src="{{ banner.image.url }}" alt="" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm text-charcoal font-heading tracking-wide">{{ banner.title|default:"Untitled" }}</span>
+                        {% if banner.is_active %}
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+                        {% else %}
+                        <span class="text-xs bg-charcoal/10 text-charcoal/40 px-2 py-0.5 rounded">Inactive</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-charcoal/40 mt-0.5">Order: {{ banner.display_order }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'manage_banner_edit' banner.pk %}"
+                       class="text-xs text-gold hover:text-leather transition font-heading tracking-wider">EDIT</a>
+                    <form method="post" action="{% url 'manage_banner_delete' banner.pk %}" class="inline"
+                          onsubmit="return confirm('Delete this banner?')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs text-velvet hover:text-red-700 transition font-heading tracking-wider">DELETE</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-charcoal/40 text-sm font-display italic">No banners yet. Add one to show a hero image on the home page.</p>
+        {% endif %}
+    </div>
+
+    <!-- Popups -->
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-heading text-lg text-charcoal tracking-wide">POPUPS</h2>
+            <a href="{% url 'manage_popup_create' %}"
+               class="bg-leather text-parchment px-4 py-2 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                + ADD POPUP
+            </a>
+        </div>
+        {% if popups %}
+        <div class="space-y-3">
+            {% for popup in popups %}
+            <div class="flex items-center gap-4 bg-parchment rounded p-3 border border-charcoal/5">
+                {% if popup.image %}
+                <div class="w-16 h-16 rounded overflow-hidden flex-shrink-0 border border-charcoal/10">
+                    <img src="{{ popup.image.url }}" alt="" class="w-full h-full object-cover">
+                </div>
+                {% else %}
+                <div class="w-16 h-16 rounded flex-shrink-0 bg-charcoal/5 flex items-center justify-center">
+                    <span class="text-gold/20 font-heading text-lg">&#10022;</span>
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm text-charcoal font-heading tracking-wide">{{ popup.title }}</span>
+                        <span class="text-xs px-2 py-0.5 rounded
+                            {% if popup.popup_type == 'banner' %}bg-gold/10 text-gold{% else %}bg-leather/10 text-leather{% endif %}">
+                            {{ popup.get_popup_type_display }}
+                        </span>
+                        {% if popup.is_active %}
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+                        {% else %}
+                        <span class="text-xs bg-charcoal/10 text-charcoal/40 px-2 py-0.5 rounded">Inactive</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-charcoal/40 mt-0.5">
+                        {% if popup.start_date %}From {{ popup.start_date|date:"Y-m-d H:i" }}{% endif %}
+                        {% if popup.end_date %}Until {{ popup.end_date|date:"Y-m-d H:i" }}{% endif %}
+                        {% if not popup.start_date and not popup.end_date %}Always shown{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'manage_popup_edit' popup.pk %}"
+                       class="text-xs text-gold hover:text-leather transition font-heading tracking-wider">EDIT</a>
+                    <form method="post" action="{% url 'manage_popup_delete' popup.pk %}" class="inline"
+                          onsubmit="return confirm('Delete this popup?')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs text-velvet hover:text-red-700 transition font-heading tracking-wider">DELETE</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-charcoal/40 text-sm font-display italic">No popups yet. Create one to show announcements on the home page.</p>
+        {% endif %}
     </div>
 
     <!-- Category Management -->

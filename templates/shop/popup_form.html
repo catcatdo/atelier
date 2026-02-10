@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editing %}Edit{% else %}New{% endif %} Popup — Atelier des Poupees{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-4 py-12">
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-xl p-6 sm:p-8">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">
+                {% if editing %}Edit{% else %}New{% endif %} Popup
+            </p>
+            <h1 class="font-heading text-2xl text-charcoal tracking-wide">
+                {% if editing %}EDIT POPUP{% else %}CREATE POPUP{% endif %}
+            </h1>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-velvet/5 border border-velvet/20 rounded text-sm text-velvet">
+            <ul class="space-y-1 list-none">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div>
+                <label for="id_title" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">TITLE</label>
+                <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required
+                       placeholder="Popup title..."
+                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+            </div>
+
+            <!-- Popup Type -->
+            <div>
+                <label for="id_popup_type" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">TYPE</label>
+                <select name="popup_type" id="id_popup_type"
+                        class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                    <option value="announcement" {% if form.popup_type.value == 'announcement' %}selected{% endif %}>Text + Image Announcement</option>
+                    <option value="banner" {% if form.popup_type.value == 'banner' %}selected{% endif %}>Full Image Banner</option>
+                </select>
+            </div>
+
+            <!-- Content (only for announcement type) -->
+            <div id="content-section">
+                <label for="id_content" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CONTENT</label>
+                <textarea name="content" id="id_content" rows="5"
+                          placeholder="Announcement text..."
+                          class="w-full px-4 py-3 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition resize-y text-charcoal leading-relaxed">{{ form.content.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Image -->
+            <div>
+                <label for="id_image" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">
+                    IMAGE {% if editing %}(leave empty to keep current){% endif %}
+                </label>
+                {% if editing and popup.image %}
+                <div class="mb-3 w-40 h-40 rounded overflow-hidden border border-charcoal/10">
+                    <img src="{{ popup.image.url }}" alt="Current" class="w-full h-full object-cover">
+                </div>
+                {% endif %}
+                <input type="file" name="image" id="id_image" accept="image/*"
+                       class="w-full text-sm text-charcoal/50
+                              file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                              file:text-xs file:bg-leather file:text-parchment
+                              hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
+                <p id="image-hint" class="text-xs text-charcoal/30 mt-1"></p>
+            </div>
+
+            <!-- Link URL -->
+            <div>
+                <label for="id_link_url" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">LINK URL <span class="text-charcoal/30 font-body">(optional)</span></label>
+                <input type="url" name="link_url" id="id_link_url" value="{{ form.link_url.value|default:'' }}"
+                       placeholder="https://..."
+                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+            </div>
+
+            <!-- Date Range & Active -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_start_date" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">START DATE <span class="text-charcoal/30 font-body">(optional)</span></label>
+                    <input type="datetime-local" name="start_date" id="id_start_date"
+                           value="{{ form.start_date.value|default:'' }}"
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+                <div>
+                    <label for="id_end_date" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">END DATE <span class="text-charcoal/30 font-body">(optional)</span></label>
+                    <input type="datetime-local" name="end_date" id="id_end_date"
+                           value="{{ form.end_date.value|default:'' }}"
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="is_active" {% if form.is_active.value or not editing %}checked{% endif %}
+                           class="w-5 h-5 rounded border-charcoal/20 text-gold focus:ring-gold">
+                    <span class="text-xs font-heading tracking-[0.15em] text-charcoal">ACTIVE</span>
+                </label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-sm hover:bg-leather-light transition rounded shadow-md">
+                    {% if editing %}UPDATE POPUP{% else %}CREATE POPUP{% endif %}
+                </button>
+                <a href="{% url 'manage_dashboard' %}"
+                   class="text-center border border-charcoal/20 text-charcoal py-3 px-8 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
+                    CANCEL
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+(function() {
+    var typeSelect = document.getElementById('id_popup_type');
+    var contentSection = document.getElementById('content-section');
+    var imageHint = document.getElementById('image-hint');
+
+    function toggleSections() {
+        var isBanner = typeSelect.value === 'banner';
+        contentSection.style.display = isBanner ? 'none' : 'block';
+        imageHint.textContent = isBanner
+            ? 'Full image banner — this image will be displayed as-is in the popup.'
+            : 'Optional header image for the announcement.';
+    }
+
+    typeSelect.addEventListener('change', toggleSections);
+    toggleSections();
+})();
+</script>
+{% endblock %}

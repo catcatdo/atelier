@@ -56,3 +56,48 @@ class ContentImage(models.Model):
 
     def __str__(self):
         return f'{self.product.name} - content img {self.number}'
+
+
+class HeroBanner(models.Model):
+    title = models.CharField(max_length=200, blank=True)
+    subtitle = models.TextField(blank=True)
+    image = models.ImageField(upload_to='banners/')
+    crop_x = models.FloatField(default=0)
+    crop_y = models.FloatField(default=0)
+    crop_width = models.FloatField(default=0)
+    crop_height = models.FloatField(default=0)
+    is_active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=0)
+    link_url = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order', '-created_at']
+
+    def __str__(self):
+        return self.title or f'Banner {self.pk}'
+
+
+class Popup(models.Model):
+    POPUP_TYPE_CHOICES = [
+        ('announcement', 'Text + Image Announcement'),
+        ('banner', 'Full Image Banner'),
+    ]
+
+    title = models.CharField(max_length=200)
+    content = models.TextField(blank=True)
+    image = models.ImageField(upload_to='popups/', blank=True, null=True)
+    popup_type = models.CharField(max_length=20, choices=POPUP_TYPE_CHOICES, default='announcement')
+    is_active = models.BooleanField(default=True)
+    link_url = models.URLField(blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

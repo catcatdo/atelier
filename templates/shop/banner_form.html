@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editing %}Edit{% else %}New{% endif %} Banner — Atelier des Poupees{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-4 py-12">
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-xl p-6 sm:p-8">
+        <div class="text-center mb-8">
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">
+                {% if editing %}Edit{% else %}New{% endif %} Hero Banner
+            </p>
+            <h1 class="font-heading text-2xl text-charcoal tracking-wide">
+                {% if editing %}EDIT BANNER{% else %}CREATE BANNER{% endif %}
+            </h1>
+            <div class="w-16 h-0.5 bg-gold mx-auto mt-4"></div>
+        </div>
+
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-velvet/5 border border-velvet/20 rounded text-sm text-velvet">
+            <ul class="space-y-1 list-none">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="banner-form">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div>
+                <label for="id_title" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">TITLE <span class="text-charcoal/30 font-body">(optional)</span></label>
+                <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}"
+                       placeholder="Banner title..."
+                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+            </div>
+
+            <!-- Subtitle -->
+            <div>
+                <label for="id_subtitle" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">SUBTITLE <span class="text-charcoal/30 font-body">(optional)</span></label>
+                <textarea name="subtitle" id="id_subtitle" rows="2"
+                          placeholder="Subtitle text..."
+                          class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal resize-y">{{ form.subtitle.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Image with Cropper -->
+            <div>
+                <label for="id_image" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">
+                    BANNER IMAGE {% if editing %}(leave empty to keep current){% endif %}
+                </label>
+                {% if editing and banner.image %}
+                <div class="mb-3 rounded overflow-hidden border border-charcoal/10" style="max-height: 200px;">
+                    <img src="{{ banner.image.url }}" alt="Current" class="w-full object-cover">
+                </div>
+                {% endif %}
+                <input type="file" name="image" id="id_image" accept="image/*"
+                       class="w-full text-sm text-charcoal/50
+                              file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+                              file:text-xs file:bg-leather file:text-parchment
+                              hover:file:bg-leather-light file:font-heading file:tracking-wider file:cursor-pointer">
+                <p class="text-xs text-charcoal/30 mt-1">Recommended: wide landscape image. You can crop after selecting.</p>
+            </div>
+
+            <!-- Crop Preview -->
+            <div id="crop-container" class="hidden">
+                <label class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">CROP PREVIEW</label>
+                <div class="border border-charcoal/15 rounded overflow-hidden bg-charcoal/5" style="max-height: 400px;">
+                    <img id="crop-preview" src="" alt="Preview" style="max-width: 100%; display: block;">
+                </div>
+                <div class="flex items-center gap-4 mt-3">
+                    <label class="text-xs text-charcoal/50">Aspect Ratio:</label>
+                    <select id="aspect-select" class="text-sm px-3 py-1.5 bg-parchment border border-charcoal/15 rounded focus:border-gold outline-none text-charcoal">
+                        <option value="2.5">5:2 (Wide Banner)</option>
+                        <option value="1.777">16:9</option>
+                        <option value="1.333">4:3</option>
+                        <option value="0">Free</option>
+                    </select>
+                    <span id="crop-size" class="text-xs text-charcoal/40"></span>
+                </div>
+            </div>
+
+            <!-- Hidden crop fields -->
+            <input type="hidden" name="crop_x" id="id_crop_x" value="{{ form.crop_x.value|default:'0' }}">
+            <input type="hidden" name="crop_y" id="id_crop_y" value="{{ form.crop_y.value|default:'0' }}">
+            <input type="hidden" name="crop_width" id="id_crop_width" value="{{ form.crop_width.value|default:'0' }}">
+            <input type="hidden" name="crop_height" id="id_crop_height" value="{{ form.crop_height.value|default:'0' }}">
+
+            <!-- Link URL -->
+            <div>
+                <label for="id_link_url" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">LINK URL <span class="text-charcoal/30 font-body">(optional)</span></label>
+                <input type="url" name="link_url" id="id_link_url" value="{{ form.link_url.value|default:'' }}"
+                       placeholder="https://..."
+                       class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+            </div>
+
+            <!-- Order & Active -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_display_order" class="block text-xs font-heading tracking-[0.15em] text-charcoal mb-2">DISPLAY ORDER</label>
+                    <input type="number" name="display_order" id="id_display_order" min="0"
+                           value="{{ form.display_order.value|default:'0' }}" placeholder="0"
+                           class="w-full px-4 py-2.5 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal">
+                </div>
+                <div class="flex items-end pb-1">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="is_active" {% if form.is_active.value or not editing %}checked{% endif %}
+                               class="w-5 h-5 rounded border-charcoal/20 text-gold focus:ring-gold">
+                        <span class="text-xs font-heading tracking-[0.15em] text-charcoal">ACTIVE</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-sm hover:bg-leather-light transition rounded shadow-md">
+                    {% if editing %}UPDATE BANNER{% else %}CREATE BANNER{% endif %}
+                </button>
+                <a href="{% url 'manage_dashboard' %}"
+                   class="text-center border border-charcoal/20 text-charcoal py-3 px-8 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
+                    CANCEL
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script>
+(function() {
+    var cropper = null;
+    var imageInput = document.getElementById('id_image');
+    var cropContainer = document.getElementById('crop-container');
+    var cropPreview = document.getElementById('crop-preview');
+    var aspectSelect = document.getElementById('aspect-select');
+    var cropSizeEl = document.getElementById('crop-size');
+
+    function initCropper(src) {
+        cropContainer.classList.remove('hidden');
+        cropPreview.src = src;
+
+        if (cropper) cropper.destroy();
+
+        var ratio = parseFloat(aspectSelect.value);
+        cropper = new Cropper(cropPreview, {
+            aspectRatio: ratio || NaN,
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            crop: function(e) {
+                var d = e.detail;
+                cropSizeEl.textContent = Math.round(d.width) + ' x ' + Math.round(d.height) + ' px';
+            }
+        });
+    }
+
+    imageInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            initCropper(ev.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    aspectSelect.addEventListener('change', function() {
+        if (cropper) {
+            var ratio = parseFloat(this.value);
+            cropper.setAspectRatio(ratio || NaN);
+        }
+    });
+
+    document.getElementById('banner-form').addEventListener('submit', function() {
+        if (cropper) {
+            var data = cropper.getData(true);
+            document.getElementById('id_crop_x').value = data.x;
+            document.getElementById('id_crop_y').value = data.y;
+            document.getElementById('id_crop_width').value = data.width;
+            document.getElementById('id_crop_height').value = data.height;
+        }
+    });
+})();
+</script>
+{% endblock %}

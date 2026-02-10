@@ -2,9 +2,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils.text import slugify
+from django.utils import timezone
+from django.db import models as db_models
+from PIL import Image as PILImage
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
 
-from .models import Product, Category, ProductImage, ContentImage
-from .forms import ProductPostForm
+from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup
+from .forms import ProductPostForm, HeroBannerForm, PopupForm
 from blog.models import Post
 
 
@@ -12,10 +18,19 @@ def home_view(request):
     featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
     latest_products = Product.objects.filter(is_active=True)[:8]
     latest_posts = Post.objects.all()[:3]
+    banners = HeroBanner.objects.filter(is_active=True)
+    now = timezone.now()
+    popups = Popup.objects.filter(is_active=True).filter(
+        db_models.Q(start_date__isnull=True) | db_models.Q(start_date__lte=now)
+    ).filter(
+        db_models.Q(end_date__isnull=True) | db_models.Q(end_date__gte=now)
+    )
     return render(request, 'home.html', {
         'featured_products': featured_products,
         'latest_products': latest_products,
         'latest_posts': latest_posts,
+        'banners': banners,
+        'popups': popups,
     })
 
 
@@ -66,13 +81,47 @@ def _unique_slug(base, model, field='slug', instance=None):
     return candidate
 
 
+def _crop_image(image_file, crop_x, crop_y, crop_width, crop_height):
+    """Crop an uploaded image using coordinates from Cropper.js."""
+    img = PILImage.open(image_file)
+    if img.mode in ('RGBA', 'P'):
+        img = img.convert('RGB')
+
+    left = int(crop_x)
+    top = int(crop_y)
+    right = int(crop_x + crop_width)
+    bottom = int(crop_y + crop_height)
+
+    left = max(0, left)
+    top = max(0, top)
+    right = min(img.width, right)
+    bottom = min(img.height, bottom)
+
+    if crop_width > 0 and crop_height > 0:
+        img = img.crop((left, top, right, bottom))
+
+    buffer = BytesIO()
+    img.save(buffer, format='JPEG', quality=90)
+    buffer.seek(0)
+
+    name = image_file.name.rsplit('.', 1)[0] + '.jpg'
+    return InMemoryUploadedFile(
+        buffer, 'ImageField', name,
+        'image/jpeg', sys.getsizeof(buffer), None
+    )
+
+
 @staff_member_required
 def manage_dashboard_view(request):
     products = Product.objects.select_related('category').order_by('-created_at')
     categories = Category.objects.all()
+    banners = HeroBanner.objects.all()
+    popups = Popup.objects.all()
     return render(request, 'shop/manage_dashboard.html', {
         'products': products,
         'categories': categories,
+        'banners': banners,
+        'popups': popups,
     })
 
 
@@ -247,3 +296,169 @@ def manage_delete_view(request, pk):
     return render(request, 'shop/product_confirm_delete.html', {
         'product': product,
     })
+
+
+# ── Hero Banner Views ──
+
+
+@staff_member_required
+def manage_banner_create_view(request):
+    if request.method == 'POST':
+        form = HeroBannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data['image']
+            crop_x = form.cleaned_data['crop_x']
+            crop_y = form.cleaned_data['crop_y']
+            crop_w = form.cleaned_data['crop_width']
+            crop_h = form.cleaned_data['crop_height']
+
+            if crop_w > 0 and crop_h > 0:
+                cropped = _crop_image(image, crop_x, crop_y, crop_w, crop_h)
+            else:
+                cropped = image
+
+            HeroBanner.objects.create(
+                title=form.cleaned_data.get('title', ''),
+                subtitle=form.cleaned_data.get('subtitle', ''),
+                image=cropped,
+                crop_x=crop_x, crop_y=crop_y,
+                crop_width=crop_w, crop_height=crop_h,
+                is_active=form.cleaned_data['is_active'],
+                display_order=form.cleaned_data['display_order'],
+                link_url=form.cleaned_data.get('link_url', ''),
+            )
+            messages.success(request, 'Hero banner created.')
+            return redirect('manage_dashboard')
+    else:
+        form = HeroBannerForm()
+    return render(request, 'shop/banner_form.html', {'form': form, 'editing': False})
+
+
+@staff_member_required
+def manage_banner_edit_view(request, pk):
+    banner = get_object_or_404(HeroBanner, pk=pk)
+    if request.method == 'POST':
+        form = HeroBannerForm(request.POST, request.FILES)
+        form.fields['image'].required = False
+        if form.is_valid():
+            banner.title = form.cleaned_data.get('title', '')
+            banner.subtitle = form.cleaned_data.get('subtitle', '')
+            banner.is_active = form.cleaned_data['is_active']
+            banner.display_order = form.cleaned_data['display_order']
+            banner.link_url = form.cleaned_data.get('link_url', '')
+
+            image = form.cleaned_data.get('image')
+            if image:
+                crop_x = form.cleaned_data['crop_x']
+                crop_y = form.cleaned_data['crop_y']
+                crop_w = form.cleaned_data['crop_width']
+                crop_h = form.cleaned_data['crop_height']
+                if crop_w > 0 and crop_h > 0:
+                    cropped = _crop_image(image, crop_x, crop_y, crop_w, crop_h)
+                else:
+                    cropped = image
+                banner.image = cropped
+                banner.crop_x = crop_x
+                banner.crop_y = crop_y
+                banner.crop_width = crop_w
+                banner.crop_height = crop_h
+
+            banner.save()
+            messages.success(request, 'Banner updated.')
+            return redirect('manage_dashboard')
+    else:
+        form = HeroBannerForm(initial={
+            'title': banner.title,
+            'subtitle': banner.subtitle,
+            'is_active': banner.is_active,
+            'display_order': banner.display_order,
+            'link_url': banner.link_url,
+            'crop_x': banner.crop_x,
+            'crop_y': banner.crop_y,
+            'crop_width': banner.crop_width,
+            'crop_height': banner.crop_height,
+        })
+    return render(request, 'shop/banner_form.html', {
+        'form': form, 'editing': True, 'banner': banner,
+    })
+
+
+@staff_member_required
+def manage_banner_delete_view(request, pk):
+    banner = get_object_or_404(HeroBanner, pk=pk)
+    if request.method == 'POST':
+        banner.image.delete()
+        banner.delete()
+        messages.success(request, 'Banner deleted.')
+    return redirect('manage_dashboard')
+
+
+# ── Popup Views ──
+
+
+@staff_member_required
+def manage_popup_create_view(request):
+    if request.method == 'POST':
+        form = PopupForm(request.POST, request.FILES)
+        if form.is_valid():
+            Popup.objects.create(
+                title=form.cleaned_data['title'],
+                popup_type=form.cleaned_data['popup_type'],
+                content=form.cleaned_data.get('content', ''),
+                image=form.cleaned_data.get('image') or None,
+                link_url=form.cleaned_data.get('link_url', ''),
+                is_active=form.cleaned_data['is_active'],
+                start_date=form.cleaned_data.get('start_date'),
+                end_date=form.cleaned_data.get('end_date'),
+            )
+            messages.success(request, 'Popup created.')
+            return redirect('manage_dashboard')
+    else:
+        form = PopupForm()
+    return render(request, 'shop/popup_form.html', {'form': form, 'editing': False})
+
+
+@staff_member_required
+def manage_popup_edit_view(request, pk):
+    popup = get_object_or_404(Popup, pk=pk)
+    if request.method == 'POST':
+        form = PopupForm(request.POST, request.FILES)
+        form.fields['image'].required = False
+        if form.is_valid():
+            popup.title = form.cleaned_data['title']
+            popup.popup_type = form.cleaned_data['popup_type']
+            popup.content = form.cleaned_data.get('content', '')
+            popup.link_url = form.cleaned_data.get('link_url', '')
+            popup.is_active = form.cleaned_data['is_active']
+            popup.start_date = form.cleaned_data.get('start_date')
+            popup.end_date = form.cleaned_data.get('end_date')
+            image = form.cleaned_data.get('image')
+            if image:
+                popup.image = image
+            popup.save()
+            messages.success(request, 'Popup updated.')
+            return redirect('manage_dashboard')
+    else:
+        form = PopupForm(initial={
+            'title': popup.title,
+            'popup_type': popup.popup_type,
+            'content': popup.content,
+            'link_url': popup.link_url,
+            'is_active': popup.is_active,
+            'start_date': popup.start_date.strftime('%Y-%m-%dT%H:%M') if popup.start_date else '',
+            'end_date': popup.end_date.strftime('%Y-%m-%dT%H:%M') if popup.end_date else '',
+        })
+    return render(request, 'shop/popup_form.html', {
+        'form': form, 'editing': True, 'popup': popup,
+    })
+
+
+@staff_member_required
+def manage_popup_delete_view(request, pk):
+    popup = get_object_or_404(Popup, pk=pk)
+    if request.method == 'POST':
+        if popup.image:
+            popup.image.delete()
+        popup.delete()
+        messages.success(request, 'Popup deleted.')
+    return redirect('manage_dashboard')
