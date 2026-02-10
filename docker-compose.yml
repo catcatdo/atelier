@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: atelier
+      POSTGRES_USER: atelier
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atelier"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    restart: always
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_CSRF_TRUSTED: ${DJANGO_CSRF_TRUSTED}
+      DATABASE_ENGINE: postgresql
+      DB_NAME: atelier
+      DB_USER: atelier
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
