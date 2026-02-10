@@ -473,9 +473,8 @@ def manage_popup_delete_view(request, pk):
 @staff_member_required
 def manage_menu_view(request):
     menu_sections = [
-        ('header', 'Header', MenuItem.objects.filter(location='header')),
-        ('footer_nav', 'Footer Navigate', MenuItem.objects.filter(location='footer_nav')),
-        ('footer_account', 'Footer Account', MenuItem.objects.filter(location='footer_account')),
+        ('header', '네비게이션', MenuItem.objects.filter(location='header')),
+        ('footer_account', '푸터 계정', MenuItem.objects.filter(location='footer_account')),
     ]
     locations = MenuItem.LOCATION_CHOICES
     site_settings = SiteSetting.objects.first()

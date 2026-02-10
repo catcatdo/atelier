@@ -106,9 +106,8 @@ class Popup(models.Model):
 
 class MenuItem(models.Model):
     LOCATION_CHOICES = [
-        ('header', 'Header'),
-        ('footer_nav', 'Footer Navigate'),
-        ('footer_account', 'Footer Account'),
+        ('header', '네비게이션'),
+        ('footer_account', '푸터 계정'),
     ]
 
     location = models.CharField(max_length=20, choices=LOCATION_CHOICES)

@@ -7,9 +7,10 @@ def menu_context(request):
         site_settings = SiteSetting.objects.first()
     except Exception:
         site_settings = None
+    header_items = active_items.filter(location='header')
     return {
-        'header_menu': active_items.filter(location='header'),
-        'footer_nav_menu': active_items.filter(location='footer_nav'),
+        'header_menu': header_items,
+        'footer_nav_menu': header_items,
         'footer_account_menu': active_items.filter(location='footer_account'),
         'site_settings': site_settings,
     }
