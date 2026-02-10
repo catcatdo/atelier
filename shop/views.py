@@ -9,7 +9,7 @@ from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
 
-from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup
+from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup, MenuItem
 from .forms import ProductPostForm, HeroBannerForm, PopupForm
 from blog.models import Post
 
@@ -469,3 +469,96 @@ def manage_popup_delete_view(request, pk):
         popup.delete()
         messages.success(request, 'Popup deleted.')
     return redirect('manage_dashboard')
+
+
+# ── Menu Item Views ──
+
+
+@staff_member_required
+def manage_menu_view(request):
+    menu_sections = [
+        ('header', 'Header', MenuItem.objects.filter(location='header')),
+        ('footer_nav', 'Footer Navigate', MenuItem.objects.filter(location='footer_nav')),
+        ('footer_account', 'Footer Account', MenuItem.objects.filter(location='footer_account')),
+    ]
+    locations = MenuItem.LOCATION_CHOICES
+    return render(request, 'shop/manage_menu.html', {
+        'menu_sections': menu_sections,
+        'locations': locations,
+    })
+
+
+@staff_member_required
+def manage_menu_add_view(request):
+    if request.method == 'POST':
+        location = request.POST.get('location', '').strip()
+        label = request.POST.get('label', '').strip()
+        url = request.POST.get('url', '').strip()
+        display_order = request.POST.get('display_order', '0')
+        is_active = request.POST.get('is_active') == 'on'
+        open_new_tab = request.POST.get('open_new_tab') == 'on'
+
+        valid_locations = [c[0] for c in MenuItem.LOCATION_CHOICES]
+        if label and url and location in valid_locations:
+            try:
+                display_order = int(display_order)
+            except (ValueError, TypeError):
+                display_order = 0
+            MenuItem.objects.create(
+                location=location,
+                label=label,
+                url=url,
+                display_order=display_order,
+                is_active=is_active,
+                open_new_tab=open_new_tab,
+            )
+            messages.success(request, f'Menu item "{label}" added.')
+        else:
+            messages.error(request, 'Label, URL, and valid location are required.')
+    return redirect('manage_menu')
+
+
+@staff_member_required
+def manage_menu_edit_view(request, pk):
+    item = get_object_or_404(MenuItem, pk=pk)
+    if request.method == 'POST':
+        label = request.POST.get('label', '').strip()
+        url = request.POST.get('url', '').strip()
+        location = request.POST.get('location', '').strip()
+        display_order = request.POST.get('display_order', '0')
+        is_active = request.POST.get('is_active') == 'on'
+        open_new_tab = request.POST.get('open_new_tab') == 'on'
+
+        valid_locations = [c[0] for c in MenuItem.LOCATION_CHOICES]
+        if label and url and location in valid_locations:
+            try:
+                display_order = int(display_order)
+            except (ValueError, TypeError):
+                display_order = 0
+            item.label = label
+            item.url = url
+            item.location = location
+            item.display_order = display_order
+            item.is_active = is_active
+            item.open_new_tab = open_new_tab
+            item.save()
+            messages.success(request, f'Menu item "{label}" updated.')
+            return redirect('manage_menu')
+        else:
+            messages.error(request, 'Label, URL, and valid location are required.')
+
+    locations = MenuItem.LOCATION_CHOICES
+    return render(request, 'shop/manage_menu_edit.html', {
+        'item': item,
+        'locations': locations,
+    })
+
+
+@staff_member_required
+def manage_menu_delete_view(request, pk):
+    item = get_object_or_404(MenuItem, pk=pk)
+    if request.method == 'POST':
+        label = item.label
+        item.delete()
+        messages.success(request, f'Menu item "{label}" deleted.')
+    return redirect('manage_menu')

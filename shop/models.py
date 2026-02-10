@@ -102,3 +102,24 @@ class Popup(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class MenuItem(models.Model):
+    LOCATION_CHOICES = [
+        ('header', 'Header'),
+        ('footer_nav', 'Footer Navigate'),
+        ('footer_account', 'Footer Account'),
+    ]
+
+    location = models.CharField(max_length=20, choices=LOCATION_CHOICES)
+    label = models.CharField(max_length=100)
+    url = models.CharField(max_length=300)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    open_new_tab = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['location', 'display_order']
+
+    def __str__(self):
+        return f'{self.get_location_display()} — {self.label}'

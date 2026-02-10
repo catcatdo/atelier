@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu Editor — Atelier des Poupees{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-12">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+        <div>
+            <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-1">Administration</p>
+            <h1 class="font-heading text-3xl text-charcoal tracking-wide">MENU EDITOR</h1>
+        </div>
+        <a href="{% url 'manage_dashboard' %}"
+           class="text-sm text-charcoal/60 hover:text-gold transition font-heading tracking-wider">&larr; BACK TO MANAGE</a>
+    </div>
+
+    {% for section_key, section_label, items in menu_sections %}
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <h2 class="font-heading text-lg text-charcoal tracking-wide mb-4">{{ section_label|upper }}</h2>
+
+        {% if items %}
+        <div class="space-y-3 mb-6">
+            {% for item in items %}
+            <div class="flex items-center gap-4 bg-parchment rounded p-3 border border-charcoal/5">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm text-charcoal font-heading tracking-wide">{{ item.label }}</span>
+                        {% if item.is_active %}
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+                        {% else %}
+                        <span class="text-xs bg-charcoal/10 text-charcoal/40 px-2 py-0.5 rounded">Inactive</span>
+                        {% endif %}
+                        {% if item.open_new_tab %}
+                        <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">New Tab</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-charcoal/40 mt-0.5">{{ item.url }} &middot; Order: {{ item.display_order }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'manage_menu_edit' item.pk %}"
+                       class="text-xs text-gold hover:text-leather transition font-heading tracking-wider">EDIT</a>
+                    <form method="post" action="{% url 'manage_menu_delete' item.pk %}" class="inline"
+                          onsubmit="return confirm('Delete this menu item?')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs text-velvet hover:text-red-700 transition font-heading tracking-wider">DELETE</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-charcoal/40 text-sm font-display italic mb-6">No menu items in this section.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Add Menu Item -->
+    <div class="bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <h2 class="font-heading text-lg text-charcoal tracking-wide mb-4">ADD MENU ITEM</h2>
+        <form method="post" action="{% url 'manage_menu_add' %}">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LOCATION</label>
+                    <select name="location"
+                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                        {% for value, display in locations %}
+                        <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LABEL</label>
+                    <input type="text" name="label" required placeholder="e.g. About Us"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">URL</label>
+                    <input type="text" name="url" required placeholder="e.g. /about/"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">ORDER</label>
+                    <input type="number" name="display_order" value="0" min="0"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+            </div>
+            <div class="flex items-center gap-6 mb-4">
+                <label class="flex items-center gap-2 text-sm text-charcoal">
+                    <input type="checkbox" name="is_active" checked class="accent-gold">
+                    Active
+                </label>
+                <label class="flex items-center gap-2 text-sm text-charcoal">
+                    <input type="checkbox" name="open_new_tab" class="accent-gold">
+                    Open in new tab
+                </label>
+            </div>
+            <button type="submit"
+                    class="bg-leather text-parchment px-6 py-2.5 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                + ADD ITEM
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Menu Item — Atelier des Poupees{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-4 py-12">
+    <div class="mb-8">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-1">Menu Editor</p>
+        <h1 class="font-heading text-3xl text-charcoal tracking-wide">EDIT ITEM</h1>
+    </div>
+
+    <div class="bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <form method="post">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LOCATION</label>
+                    <select name="location"
+                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                        {% for value, display in locations %}
+                        <option value="{{ value }}" {% if item.location == value %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">LABEL</label>
+                    <input type="text" name="label" required value="{{ item.label }}"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">URL</label>
+                    <input type="text" name="url" required value="{{ item.url }}"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">ORDER</label>
+                    <input type="number" name="display_order" value="{{ item.display_order }}" min="0"
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                </div>
+            </div>
+            <div class="flex items-center gap-6 mb-6">
+                <label class="flex items-center gap-2 text-sm text-charcoal">
+                    <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %} class="accent-gold">
+                    Active
+                </label>
+                <label class="flex items-center gap-2 text-sm text-charcoal">
+                    <input type="checkbox" name="open_new_tab" {% if item.open_new_tab %}checked{% endif %} class="accent-gold">
+                    Open in new tab
+                </label>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit"
+                        class="bg-leather text-parchment px-6 py-2.5 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                    SAVE CHANGES
+                </button>
+                <a href="{% url 'manage_menu' %}"
+                   class="px-6 py-2.5 border border-charcoal/20 text-charcoal/60 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
+                    CANCEL
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

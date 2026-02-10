@@ -17,5 +17,9 @@ urlpatterns = [
     path('manage/popup/create/', views.manage_popup_create_view, name='manage_popup_create'),
     path('manage/popup/<int:pk>/edit/', views.manage_popup_edit_view, name='manage_popup_edit'),
     path('manage/popup/<int:pk>/delete/', views.manage_popup_delete_view, name='manage_popup_delete'),
+    path('manage/menu/', views.manage_menu_view, name='manage_menu'),
+    path('manage/menu/add/', views.manage_menu_add_view, name='manage_menu_add'),
+    path('manage/menu/<int:pk>/edit/', views.manage_menu_edit_view, name='manage_menu_edit'),
+    path('manage/menu/<int:pk>/delete/', views.manage_menu_delete_view, name='manage_menu_delete'),
     path('<slug:slug>/', views.product_detail_view, name='product_detail'),
 ]
