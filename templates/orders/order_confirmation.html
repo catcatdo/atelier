@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load content_tags %}
+
+{% block title %}Order Confirmed — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-2xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-lg border-double border-4 border-gold/30 shadow-xl p-8 text-center">
+        <div class="text-gold text-5xl mb-4">&#10003;</div>
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Thank You</p>
+        <h1 class="font-heading text-2xl sm:text-3xl text-charcoal tracking-wide mb-2">ORDER CONFIRMED</h1>
+        <div class="w-16 h-0.5 bg-gold mx-auto mt-4 mb-6"></div>
+
+        <p class="text-charcoal/60 mb-1">Order Number</p>
+        <p class="font-mono text-sm text-charcoal bg-parchment inline-block px-4 py-2 rounded border border-charcoal/10">
+            {{ order.order_number }}
+        </p>
+
+        <div class="mt-8 text-left space-y-4">
+            <div class="border-t border-charcoal/10 pt-4">
+                <h3 class="font-heading text-sm tracking-wide text-charcoal mb-3">ORDER DETAILS</h3>
+                {% for item in order.items.all %}
+                <div class="flex justify-between text-sm py-1">
+                    <span class="text-charcoal/70">{{ item.product_name }} &times; {{ item.quantity }}</span>
+                    <span class="text-leather font-semibold">{{ item.get_total|krw }}</span>
+                </div>
+                {% endfor %}
+                <div class="flex justify-between text-sm pt-3 mt-3 border-t border-charcoal/10 font-semibold">
+                    <span class="font-heading tracking-wide text-charcoal">TOTAL</span>
+                    <span class="text-leather text-lg">{{ order.total|krw }}</span>
+                </div>
+            </div>
+
+            {% if order.shipping_name %}
+            <div class="border-t border-charcoal/10 pt-4">
+                <h3 class="font-heading text-sm tracking-wide text-charcoal mb-2">SHIPPING TO</h3>
+                <p class="text-charcoal/70 text-sm leading-relaxed">
+                    {{ order.shipping_name }}<br>
+                    {{ order.shipping_address_line1 }}<br>
+                    {% if order.shipping_address_line2 %}{{ order.shipping_address_line2 }}<br>{% endif %}
+                    {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %} {{ order.shipping_postal_code }}<br>
+                    {{ order.shipping_country }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="{% url 'product_list' %}"
+               class="border border-charcoal/20 text-charcoal px-6 py-3 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
+                CONTINUE SHOPPING
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'order_history' %}"
+               class="bg-leather text-parchment px-6 py-3 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow-md">
+                VIEW ORDERS
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

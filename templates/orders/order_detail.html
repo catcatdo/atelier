@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load content_tags %}
+
+{% block title %}Order {{ order.order_number }} — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 py-12">
+    <!-- Breadcrumb -->
+    <nav class="mb-8 text-sm text-charcoal/40">
+        <a href="{% url 'order_history' %}" class="hover:text-gold transition">Orders</a>
+        <span class="mx-2">&rsaquo;</span>
+        <span class="text-charcoal/70">{{ order.order_number }}</span>
+    </nav>
+
+    <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-parchment p-6 border-b border-charcoal/10">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <p class="font-heading text-lg tracking-wide text-charcoal">ORDER DETAILS</p>
+                    <p class="font-mono text-xs text-charcoal/40 mt-1">{{ order.order_number }}</p>
+                    <p class="text-xs text-charcoal/40 mt-1">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+                <span class="text-xs px-3 py-1 rounded-full font-heading tracking-wider
+                    {% if order.status == 'paid' %}bg-green-100 text-green-700
+                    {% elif order.status == 'processing' %}bg-blue-100 text-blue-700
+                    {% elif order.status == 'shipped' %}bg-purple-100 text-purple-700
+                    {% elif order.status == 'delivered' %}bg-gold/10 text-gold
+                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                    {% else %}bg-charcoal/10 text-charcoal/50{% endif %}">
+                    {{ order.get_status_display|upper }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="divide-y divide-charcoal/10">
+            {% for item in order.items.all %}
+            <div class="p-6 flex justify-between items-center">
+                <div>
+                    <h3 class="font-heading text-sm tracking-wide text-charcoal">{{ item.product_name }}</h3>
+                    <p class="text-xs text-charcoal/40 mt-1">{{ item.product_price|krw }} &times; {{ item.quantity }}</p>
+                </div>
+                <span class="text-leather font-semibold">{{ item.get_total|krw }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Total -->
+        <div class="bg-parchment p-6 border-t-2 border-gold/20">
+            <div class="flex justify-between items-center">
+                <span class="font-heading text-lg text-charcoal tracking-wide">TOTAL</span>
+                <span class="text-2xl text-leather font-semibold">{{ order.total|krw }}</span>
+            </div>
+        </div>
+
+        <!-- Shipping -->
+        {% if order.shipping_name %}
+        <div class="p-6 border-t border-charcoal/10">
+            <h3 class="font-heading text-sm tracking-wide text-charcoal mb-2">SHIPPING ADDRESS</h3>
+            <p class="text-charcoal/70 text-sm leading-relaxed">
+                {{ order.shipping_name }}<br>
+                {{ order.shipping_address_line1 }}<br>
+                {% if order.shipping_address_line2 %}{{ order.shipping_address_line2 }}<br>{% endif %}
+                {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %} {{ order.shipping_postal_code }}<br>
+                {{ order.shipping_country }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-6 text-center">
+        <a href="{% url 'order_history' %}"
+           class="text-gold font-heading tracking-[0.15em] text-sm hover:underline">
+            &larr; BACK TO ORDERS
+        </a>
+    </div>
+</section>
+{% endblock %}

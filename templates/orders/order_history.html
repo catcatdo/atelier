@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load content_tags %}
+
+{% block title %}Order History — Atelier des Poupées{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-12">
+    <div class="text-center mb-12">
+        <p class="font-display italic text-gold text-sm tracking-[0.2em] mb-2">Your Purchases</p>
+        <h1 class="font-heading text-3xl sm:text-4xl text-charcoal tracking-wide">ORDER HISTORY</h1>
+        <div class="w-20 h-0.5 bg-gold mx-auto mt-4"></div>
+    </div>
+
+    {% if orders %}
+    <div class="space-y-4">
+        {% for order in orders %}
+        <a href="{% url 'order_detail' order.order_number %}"
+           class="block bg-white rounded-lg border border-charcoal/10 hover:border-gold shadow-sm hover:shadow-md transition-all p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <p class="font-mono text-xs text-charcoal/40">{{ order.order_number }}</p>
+                    <p class="font-heading text-sm tracking-wide text-charcoal mt-1">
+                        {{ order.items.count }} item{{ order.items.count|pluralize }}
+                    </p>
+                    <p class="text-xs text-charcoal/40 mt-1">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs px-3 py-1 rounded-full font-heading tracking-wider
+                        {% if order.status == 'paid' %}bg-green-100 text-green-700
+                        {% elif order.status == 'processing' %}bg-blue-100 text-blue-700
+                        {% elif order.status == 'shipped' %}bg-purple-100 text-purple-700
+                        {% elif order.status == 'delivered' %}bg-gold/10 text-gold
+                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                        {% else %}bg-charcoal/10 text-charcoal/50{% endif %}">
+                        {{ order.get_status_display|upper }}
+                    </span>
+                    <p class="text-leather font-semibold mt-2">{{ order.total|krw }}</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <span class="text-gold/20 font-heading text-6xl">&#10022;</span>
+        <p class="text-charcoal/40 mt-4 font-display italic text-lg">No orders yet.</p>
+        <a href="{% url 'product_list' %}"
+           class="inline-block mt-8 border-double border-4 border-gold text-gold px-8 py-3 font-heading tracking-[0.15em] text-sm hover:bg-gold hover:text-charcoal transition-all">
+            BROWSE THE SHOP
+        </a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

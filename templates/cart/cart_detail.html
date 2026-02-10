@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load content_tags %}
 
 {% block title %}Shopping Cart — Atelier des Poupées{% endblock %}
 
@@ -37,7 +38,7 @@
                 <!-- Quantity & Price -->
                 <div class="flex items-center gap-6 sm:gap-8 text-sm">
                     <span class="text-charcoal/50">Qty: {{ item.quantity }}</span>
-                    <span class="text-leather font-semibold">${{ item.total_price }}</span>
+                    <span class="text-leather font-semibold">{{ item.total_price|krw }}</span>
                     <a href="{% url 'cart_remove' item.product.id %}"
                        class="text-velvet hover:text-red-700 transition text-xs font-heading tracking-wider">
                         REMOVE
@@ -51,16 +52,19 @@
         <div class="bg-parchment p-6 border-t-2 border-gold/20">
             <div class="flex justify-between items-center">
                 <span class="font-heading text-lg text-charcoal tracking-wide">TOTAL</span>
-                <span class="text-2xl text-leather font-semibold">${{ cart.get_total_price }}</span>
+                <span class="text-2xl text-leather font-semibold">{{ cart.get_total_price|krw }}</span>
             </div>
             <div class="mt-6 flex flex-col sm:flex-row gap-3">
                 <a href="{% url 'product_list' %}"
                    class="text-center border border-charcoal/20 text-charcoal px-6 py-3 font-heading tracking-[0.15em] text-xs hover:border-gold hover:text-gold transition rounded">
                     CONTINUE SHOPPING
                 </a>
-                <button class="flex-1 bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow-md">
-                    PROCEED TO CHECKOUT
-                </button>
+                <form method="post" action="{% url 'create_checkout_session' %}" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-leather text-parchment py-3 px-8 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow-md">
+                        PROCEED TO CHECKOUT
+                    </button>
+                </form>
             </div>
         </div>
     </div>

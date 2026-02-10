@@ -38,7 +38,7 @@
             <div class="w-16 h-0.5 bg-gold mb-6"></div>
 
             <p class="text-3xl text-leather font-semibold mb-6">
-                ${{ product.price }}
+                {{ product.price|krw }}
             </p>
 
             {% if product.stock > 0 %}
@@ -266,7 +266,7 @@
                 </div>
                 <div class="p-4 text-center">
                     <h3 class="font-heading text-charcoal text-sm tracking-wide">{{ item.name }}</h3>
-                    <p class="text-leather font-semibold mt-1">${{ item.price }}</p>
+                    <p class="text-leather font-semibold mt-1">{{ item.price|krw }}</p>
                 </div>
             </a>
             {% endfor %}

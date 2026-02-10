@@ -7,6 +7,16 @@ register = template.Library()
 
 
 @register.filter
+def krw(value):
+    """Format a number as KRW: ₩15,000"""
+    try:
+        amount = int(value)
+    except (ValueError, TypeError):
+        return value
+    return f'₩{amount:,}'
+
+
+@register.filter
 def render_content(text, content_images):
     """Replace [img:N] tags with actual images, then apply linebreaks."""
     text = escape(text)

@@ -75,6 +75,7 @@
                         Manage
                     </a>
                     {% endif %}
+                    <a href="{% url 'order_history' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Orders</a>
                     <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
                     <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
                     {% else %}
@@ -95,6 +96,7 @@
                 {% if user.is_staff %}
                 <a href="{% url 'manage_dashboard' %}" class="block text-gold hover:text-parchment transition py-1.5 font-semibold">Manage</a>
                 {% endif %}
+                <a href="{% url 'order_history' %}" class="block text-parchment hover:text-gold transition py-1.5">Orders</a>
                 <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
                 <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
                 {% else %}
@@ -145,6 +147,7 @@
                     <ul class="space-y-2 text-sm">
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}" class="text-parchment/60 hover:text-gold transition">Profile</a></li>
+                        <li><a href="{% url 'order_history' %}" class="text-parchment/60 hover:text-gold transition">Order History</a></li>
                         <li><a href="{% url 'cart_detail' %}" class="text-parchment/60 hover:text-gold transition">Shopping Cart</a></li>
                         {% else %}
                         <li><a href="{% url 'login' %}" class="text-parchment/60 hover:text-gold transition">Sign In</a></li>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load content_tags %}
 
 {% block title %}{{ post.title }} — Atelier des Poupées{% endblock %}
 
@@ -50,7 +51,7 @@
             {% endif %}
             <div class="flex-1">
                 <h3 class="font-heading text-lg text-charcoal tracking-wide">{{ post.related_product.name }}</h3>
-                <p class="text-leather font-semibold mt-1">${{ post.related_product.price }}</p>
+                <p class="text-leather font-semibold mt-1">{{ post.related_product.price|krw }}</p>
                 <p class="text-charcoal/50 text-sm mt-2">{{ post.related_product.description|truncatewords:20 }}</p>
                 <a href="{% url 'product_detail' post.related_product.slug %}"
                    class="inline-block mt-3 bg-leather text-parchment px-6 py-2 text-xs font-heading tracking-[0.15em] hover:bg-leather-light transition rounded">
