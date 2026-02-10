@@ -66,6 +66,9 @@
                     <a href="{% url 'manage_dashboard' %}" class="bg-gold/10 text-gold px-4 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all rounded">
                         Manage
                     </a>
+                    <a href="{% url 'manage_menu' %}" class="bg-gold/10 text-gold px-4 py-1.5 text-sm tracking-wider hover:bg-gold hover:text-charcoal transition-all rounded">
+                        Menu
+                    </a>
                     {% endif %}
                     <a href="{% url 'profile' %}" class="text-parchment hover:text-gold transition text-sm tracking-wider">Profile</a>
                     <a href="{% url 'logout' %}" class="text-parchment/60 hover:text-gold transition text-sm tracking-wider">Logout</a>
@@ -85,6 +88,7 @@
                 {% if user.is_authenticated %}
                 {% if user.is_staff %}
                 <a href="{% url 'manage_dashboard' %}" class="block text-gold hover:text-parchment transition py-1.5 font-semibold">Manage</a>
+                <a href="{% url 'manage_menu' %}" class="block text-gold hover:text-parchment transition py-1.5 font-semibold">Menu</a>
                 {% endif %}
                 <a href="{% url 'profile' %}" class="block text-parchment hover:text-gold transition py-1.5">Profile</a>
                 <a href="{% url 'logout' %}" class="block text-parchment/60 hover:text-gold transition py-1.5">Logout</a>
