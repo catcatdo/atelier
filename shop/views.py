@@ -51,7 +51,7 @@ def product_detail_view(request, slug):
 
 
 def _unique_slug(base, model, field='slug', instance=None):
-    slug = slugify(base, allow_unicode=True)
+    slug = slugify(base)
     if not slug:
         slug = 'item'
     qs = model.objects.all()
