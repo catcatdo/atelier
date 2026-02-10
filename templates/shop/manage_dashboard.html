@@ -15,6 +15,43 @@
         </a>
     </div>
 
+    <!-- Category Management -->
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <h2 class="font-heading text-lg text-charcoal tracking-wide mb-4">CATEGORIES</h2>
+
+        {% if categories %}
+        <div class="flex flex-wrap gap-2 mb-4">
+            {% for cat in categories %}
+            <div class="flex items-center gap-1.5 bg-parchment border border-charcoal/10 rounded px-3 py-1.5">
+                <span class="text-sm text-charcoal">{{ cat.name }}</span>
+                <span class="text-xs text-charcoal/30">({{ cat.products.count }})</span>
+                {% if not cat.products.exists %}
+                <a href="{% url 'manage_category_delete' cat.pk %}"
+                   class="text-velvet hover:text-red-700 transition ml-1" title="Delete">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-charcoal/40 text-sm mb-4 font-display italic">No categories yet. Add one to start creating posts.</p>
+        {% endif %}
+
+        <form method="post" action="{% url 'manage_category_add' %}" class="flex gap-2">
+            {% csrf_token %}
+            <input type="text" name="name" required placeholder="New category name..."
+                   class="flex-1 px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+            <button type="submit"
+                    class="bg-leather text-parchment px-5 py-2 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                ADD
+            </button>
+        </form>
+    </div>
+
+    <!-- Products -->
     {% if products %}
     <div class="bg-white rounded-lg border-double border-4 border-charcoal/10 shadow-lg overflow-hidden">
         <div class="divide-y divide-charcoal/10">

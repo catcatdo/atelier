@@ -67,9 +67,36 @@ def _unique_slug(base, model, field='slug', instance=None):
 @staff_member_required
 def manage_dashboard_view(request):
     products = Product.objects.select_related('category').order_by('-created_at')
+    categories = Category.objects.all()
     return render(request, 'shop/manage_dashboard.html', {
         'products': products,
+        'categories': categories,
     })
+
+
+@staff_member_required
+def manage_category_add_view(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if name:
+            slug = _unique_slug(name, Category)
+            Category.objects.create(name=name, slug=slug)
+            messages.success(request, f'Category "{name}" created.')
+        else:
+            messages.error(request, 'Category name is required.')
+    return redirect('manage_dashboard')
+
+
+@staff_member_required
+def manage_category_delete_view(request, pk):
+    cat = get_object_or_404(Category, pk=pk)
+    if cat.products.exists():
+        messages.error(request, f'Cannot delete "{cat.name}" — it still has products.')
+    else:
+        name = cat.name
+        cat.delete()
+        messages.success(request, f'Category "{name}" deleted.')
+    return redirect('manage_dashboard')
 
 
 @staff_member_required
