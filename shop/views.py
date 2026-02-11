@@ -620,6 +620,22 @@ def manage_menu_delete_view(request, pk):
     return redirect('manage_menu')
 
 
+@staff_member_required
+def manage_menu_reorder_view(request):
+    import json
+    from django.http import JsonResponse
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order = data.get('order', [])
+            for idx, pk in enumerate(order):
+                MenuItem.objects.filter(pk=pk).update(display_order=idx)
+            return JsonResponse({'ok': True})
+        except (json.JSONDecodeError, TypeError):
+            return JsonResponse({'ok': False}, status=400)
+    return JsonResponse({'ok': False}, status=405)
+
+
 # ── Page Views ──
 
 

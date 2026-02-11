@@ -21,6 +21,7 @@ urlpatterns = [
     path('manage/menu/add/', views.manage_menu_add_view, name='manage_menu_add'),
     path('manage/menu/<int:pk>/edit/', views.manage_menu_edit_view, name='manage_menu_edit'),
     path('manage/menu/<int:pk>/delete/', views.manage_menu_delete_view, name='manage_menu_delete'),
+    path('manage/menu/reorder/', views.manage_menu_reorder_view, name='manage_menu_reorder'),
     path('manage/site-settings/', views.manage_site_settings_view, name='manage_site_settings'),
     path('manage/page/create/', views.manage_page_create_view, name='manage_page_create'),
     path('manage/page/<int:pk>/edit/', views.manage_page_edit_view, name='manage_page_edit'),

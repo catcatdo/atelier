@@ -41,7 +41,7 @@
                 <div>
                     <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">URL</label>
                     <input type="text" name="url" id="edit-url-input" required value="{{ item.url }}"
-                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                           class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm url-auto-format">
                 </div>
                 <div>
                     <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">순서</label>
@@ -77,6 +77,18 @@
     var sel = document.getElementById('edit-page-selector');
     var urlInput = document.getElementById('edit-url-input');
     if (sel.value) { urlInput.readOnly = true; }
+
+    // URL auto-format: about → /about/
+    document.querySelectorAll('.url-auto-format').forEach(function(input) {
+        input.addEventListener('blur', function() {
+            if (this.readOnly) return;
+            var v = this.value.trim();
+            if (!v || v.startsWith('http://') || v.startsWith('https://')) return;
+            if (v.charAt(0) !== '/') v = '/' + v;
+            if (v.charAt(v.length - 1) !== '/') v = v + '/';
+            this.value = v;
+        });
+    });
 })();
 </script>
 {% endblock %}
