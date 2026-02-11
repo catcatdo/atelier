@@ -11,12 +11,17 @@
             <div class="w-16 h-0.5 bg-gold mx-auto mt-4"></div>
         </div>
 
+        {% if locked_out %}
+        <div class="mb-6 p-4 bg-velvet/10 border border-velvet/30 rounded text-velvet text-sm text-center">
+            로그인 시도가 너무 많습니다. 1시간 후에 다시 시도해주세요.
+        </div>
+        {% else %}
         <form method="post">
             {% csrf_token %}
 
             {% if form.errors %}
             <div class="mb-6 p-4 bg-velvet/5 border border-velvet/20 rounded text-velvet text-sm">
-                Invalid credentials. Please try again.
+                로그인 정보가 올바르지 않습니다. 다시 시도해주세요.
             </div>
             {% endif %}
 
@@ -38,6 +43,7 @@
                 ENTER THE ATELIER
             </button>
         </form>
+        {% endif %}
 
     </div>
 </section>
