@@ -9,7 +9,7 @@ from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
 
-from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup, MenuItem, SiteSetting
+from .models import Product, Category, ProductImage, ContentImage, HeroBanner, Popup, MenuItem, SiteSetting, Page
 from .forms import ProductPostForm, HeroBannerForm, PopupForm
 from blog.models import Post
 
@@ -120,11 +120,13 @@ def manage_dashboard_view(request):
     categories = Category.objects.all()
     banners = HeroBanner.objects.all()
     popups = Popup.objects.all()
+    pages = Page.objects.all()
     return render(request, 'shop/manage_dashboard.html', {
         'products': products,
         'categories': categories,
         'banners': banners,
         'popups': popups,
+        'pages': pages,
     })
 
 
@@ -470,6 +472,17 @@ def manage_popup_delete_view(request, pk):
 # ── Menu Item Views ──
 
 
+def _get_available_pages():
+    pages = [
+        {'label': '홈', 'url': '/'},
+        {'label': 'Shop', 'url': '/shop/'},
+        {'label': 'Blog', 'url': '/blog/'},
+    ]
+    for page in Page.objects.filter(is_active=True):
+        pages.append({'label': page.title, 'url': page.get_absolute_url()})
+    return pages
+
+
 @staff_member_required
 def manage_menu_view(request):
     menu_sections = [
@@ -478,10 +491,12 @@ def manage_menu_view(request):
     ]
     locations = MenuItem.LOCATION_CHOICES
     site_settings = SiteSetting.objects.first()
+    available_pages = _get_available_pages()
     return render(request, 'shop/manage_menu.html', {
         'menu_sections': menu_sections,
         'locations': locations,
         'site_settings': site_settings,
+        'available_pages': available_pages,
     })
 
 
@@ -504,6 +519,28 @@ def manage_site_settings_view(request):
     return redirect('manage_menu')
 
 
+KNOWN_PREFIXES = {'/', '/shop/', '/blog/', '/admin/', '/accounts/'}
+
+
+def _auto_create_page_if_needed(url, label):
+    """Auto-create a Page if the URL is an internal slug path with no existing page."""
+    import re
+    # Only handle internal paths like /something/
+    if not url.startswith('/') or url.startswith(('http://', 'https://')):
+        return
+    # Skip known app prefixes
+    for prefix in KNOWN_PREFIXES:
+        if url == prefix or (prefix != '/' and url.startswith(prefix)):
+            return
+    # Extract slug from /<slug>/ pattern
+    match = re.match(r'^/([a-zA-Z0-9_-]+)/$', url)
+    if not match:
+        return
+    slug = match.group(1)
+    if not Page.objects.filter(slug=slug).exists():
+        Page.objects.create(title=label, slug=slug, content='', is_active=True)
+
+
 @staff_member_required
 def manage_menu_add_view(request):
     if request.method == 'POST':
@@ -520,6 +557,7 @@ def manage_menu_add_view(request):
                 display_order = int(display_order)
             except (ValueError, TypeError):
                 display_order = 0
+            _auto_create_page_if_needed(url, label)
             MenuItem.objects.create(
                 location=location,
                 label=label,
@@ -564,9 +602,11 @@ def manage_menu_edit_view(request, pk):
             messages.error(request, 'Label, URL, and valid location are required.')
 
     locations = MenuItem.LOCATION_CHOICES
+    available_pages = _get_available_pages()
     return render(request, 'shop/manage_menu_edit.html', {
         'item': item,
         'locations': locations,
+        'available_pages': available_pages,
     })
 
 
@@ -578,3 +618,72 @@ def manage_menu_delete_view(request, pk):
         item.delete()
         messages.success(request, f'Menu item "{label}" deleted.')
     return redirect('manage_menu')
+
+
+# ── Page Views ──
+
+
+def page_detail_view(request, slug):
+    page = get_object_or_404(Page, slug=slug, is_active=True)
+    return render(request, 'page_detail.html', {'page': page})
+
+
+@staff_member_required
+def manage_page_create_view(request):
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        slug = request.POST.get('slug', '').strip()
+        content = request.POST.get('content', '').strip()
+        is_active = request.POST.get('is_active') == 'on'
+
+        if title:
+            if not slug:
+                slug = _unique_slug(title, Page)
+            else:
+                slug = _unique_slug(slug, Page)
+            Page.objects.create(
+                title=title,
+                slug=slug,
+                content=content,
+                is_active=is_active,
+            )
+            messages.success(request, f'Page "{title}" created.')
+            return redirect('manage_dashboard')
+        else:
+            messages.error(request, 'Title is required.')
+    return render(request, 'shop/page_form.html', {'editing': False})
+
+
+@staff_member_required
+def manage_page_edit_view(request, pk):
+    page = get_object_or_404(Page, pk=pk)
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        slug = request.POST.get('slug', '').strip()
+        content = request.POST.get('content', '').strip()
+        is_active = request.POST.get('is_active') == 'on'
+
+        if title:
+            page.title = title
+            if slug and slug != page.slug:
+                page.slug = _unique_slug(slug, Page, instance=page)
+            elif not slug:
+                page.slug = _unique_slug(title, Page, instance=page)
+            page.content = content
+            page.is_active = is_active
+            page.save()
+            messages.success(request, f'Page "{title}" updated.')
+            return redirect('manage_dashboard')
+        else:
+            messages.error(request, 'Title is required.')
+    return render(request, 'shop/page_form.html', {'editing': True, 'page': page})
+
+
+@staff_member_required
+def manage_page_delete_view(request, pk):
+    page = get_object_or_404(Page, pk=pk)
+    if request.method == 'POST':
+        title = page.title
+        page.delete()
+        messages.success(request, f'Page "{title}" deleted.')
+    return redirect('manage_dashboard')

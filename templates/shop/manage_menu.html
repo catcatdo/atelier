@@ -187,8 +187,19 @@
                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
                 </div>
                 <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">페이지 선택</label>
+                    <select id="page-selector"
+                            onchange="var u=document.getElementById('add-url-input'); if(this.value){u.value=this.value;u.readOnly=true;}else{u.value='';u.readOnly=false;}"
+                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                        <option value="">직접 입력</option>
+                        {% for p in available_pages %}
+                        <option value="{{ p.url }}">{{ p.label }} ({{ p.url }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
                     <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">URL</label>
-                    <input type="text" name="url" required placeholder="예: /about/"
+                    <input type="text" name="url" id="add-url-input" required placeholder="예: /about/"
                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
                 </div>
                 <div>

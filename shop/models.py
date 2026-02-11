@@ -124,6 +124,24 @@ class MenuItem(models.Model):
         return f'{self.get_location_display()} — {self.label}'
 
 
+class Page(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    content = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['title']
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return f'/{self.slug}/'
+
+
 class SiteSetting(models.Model):
     site_name = models.CharField(max_length=200, default="Atelier des Poupées")
     site_tagline = models.CharField(max_length=300, default="Sewn with devotion, worn with grace.")

@@ -28,8 +28,19 @@
                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
                 </div>
                 <div>
+                    <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">페이지 선택</label>
+                    <select id="edit-page-selector"
+                            onchange="var u=document.getElementById('edit-url-input'); if(this.value){u.value=this.value;u.readOnly=true;}else{u.value='';u.readOnly=false;}"
+                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
+                        <option value="">직접 입력</option>
+                        {% for p in available_pages %}
+                        <option value="{{ p.url }}" {% if item.url == p.url %}selected{% endif %}>{{ p.label }} ({{ p.url }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
                     <label class="block text-xs font-heading tracking-wider text-charcoal/60 mb-1">URL</label>
-                    <input type="text" name="url" required value="{{ item.url }}"
+                    <input type="text" name="url" id="edit-url-input" required value="{{ item.url }}"
                            class="w-full px-4 py-2 bg-parchment border border-charcoal/15 rounded focus:border-gold focus:ring-1 focus:ring-gold outline-none transition text-charcoal text-sm">
                 </div>
                 <div>
@@ -61,4 +72,11 @@
         </form>
     </div>
 </section>
+<script>
+(function() {
+    var sel = document.getElementById('edit-page-selector');
+    var urlInput = document.getElementById('edit-url-input');
+    if (sel.value) { urlInput.readOnly = true; }
+})();
+</script>
 {% endblock %}

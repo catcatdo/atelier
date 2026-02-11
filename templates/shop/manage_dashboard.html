@@ -118,6 +118,49 @@
         {% endif %}
     </div>
 
+    <!-- Pages -->
+    <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-heading text-lg text-charcoal tracking-wide">PAGES</h2>
+            <a href="{% url 'manage_page_create' %}"
+               class="bg-leather text-parchment px-4 py-2 font-heading tracking-[0.15em] text-xs hover:bg-leather-light transition rounded shadow">
+                + ADD PAGE
+            </a>
+        </div>
+        {% if pages %}
+        <div class="space-y-3">
+            {% for page in pages %}
+            <div class="flex items-center gap-4 bg-parchment rounded p-3 border border-charcoal/5">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm text-charcoal font-heading tracking-wide">{{ page.title }}</span>
+                        {% if page.is_active %}
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Active</span>
+                        {% else %}
+                        <span class="text-xs bg-charcoal/10 text-charcoal/40 px-2 py-0.5 rounded">Inactive</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-charcoal/40 mt-0.5">/{{ page.slug }}/</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{{ page.get_absolute_url }}" target="_blank"
+                       class="text-xs text-charcoal/40 hover:text-gold transition font-heading tracking-wider">VIEW</a>
+                    <a href="{% url 'manage_page_edit' page.pk %}"
+                       class="text-xs text-gold hover:text-leather transition font-heading tracking-wider">EDIT</a>
+                    <form method="post" action="{% url 'manage_page_delete' page.pk %}" class="inline"
+                          onsubmit="return confirm('Delete this page?')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs text-velvet hover:text-red-700 transition font-heading tracking-wider">DELETE</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-charcoal/40 text-sm font-display italic">No custom pages yet. Create one to add static content like About or Contact.</p>
+        {% endif %}
+    </div>
+
     <!-- Category Management -->
     <div class="mb-10 bg-white rounded-lg border border-charcoal/10 shadow-md p-6">
         <h2 class="font-heading text-lg text-charcoal tracking-wide mb-4">CATEGORIES</h2>
